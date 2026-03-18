@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>客户画像分析系统</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2236;
+    --border: #1e2d45;
+    --accent: #3b82f6;
+    --accent2: #60a5fa;
+    --gold: #f59e0b;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-soft: #94a3b8;
+    --tag-bg: #1e3a5f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans SC', sans-serif;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(59,130,246,0.07) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(245,158,11,0.04) 0%, transparent 50%);
+  }
+  header {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(17,24,39,0.9);
+    backdrop-filter: blur(10px);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--gold));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  header h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 18px; font-weight: 700; letter-spacing: 2px;
+    background: linear-gradient(90deg, #e2e8f0, #93c5fd);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  header .version { margin-left: auto; font-size: 11px; color: var(--text-muted); }
+
+  .container {
+    max-width: 1100px; margin: 0 auto; padding: 28px 16px;
+    display: grid; grid-template-columns: 400px 1fr; gap: 20px;
+  }
+  @media(max-width:820px){ .container{ grid-template-columns:1fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px;
+  }
+  .card + .card { margin-top: 16px; }
+
+  .card-title {
+    font-size: 12px; color: var(--text-muted);
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1/-1; }
+
+  label { font-size: 11px; color: var(--text-muted); letter-spacing: 0.5px; }
+
+  input, select, textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 13px; padding: 9px 12px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none; width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+  }
+  select option { background: var(--surface2); }
+  textarea { resize: vertical; min-height: 75px; }
+
+  .avatar-upload { grid-column:1/-1; display:flex; align-items:center; gap:14px; }
+  .avatar-preview {
+    width: 66px; height: 66px; border-radius: 50%;
+    border: 2px dashed var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; background: var(--surface2);
+    cursor: pointer; overflow: hidden; flex-shrink: 0;
+    transition: border-color 0.2s;
+  }
+  .avatar-preview:hover { border-color: var(--accent); }
+  .avatar-preview img { width:100%; height:100%; object-fit:cover; }
+  .avatar-info p { font-size: 12px; color: var(--text-soft); margin-bottom: 7px; }
+  .btn-upload {
+    font-size: 12px; color: var(--accent2);
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 6px; padding: 5px 12px;
+    cursor: pointer; transition: all 0.2s; font-family: inherit;
+  }
+  .btn-upload:hover { background: rgba(59,130,246,0.2); }
+  input[type="file"] { display: none; }
+
+  .tags-row { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .tag {
+    font-size: 11px; background: var(--tag-bg); color: var(--accent2);
+    border-radius: 20px; padding: 3px 10px;
+    cursor: pointer; border: 1px solid transparent; transition: all 0.2s;
+  }
+  .tag:hover { border-color: var(--accent); background: rgba(59,130,246,0.2); }
+
+  .btn-analyze {
+    width: 100%; margin-top: 20px; padding: 13px;
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    border: none; border-radius: 10px; color: white;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14px; font-weight: 600; letter-spacing: 3px;
+    cursor: pointer; transition: all 0.3s;
+  }
+  .btn-analyze:hover {
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(59,130,246,0.3);
+  }
+  .btn-analyze:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+  .loading-spin {
+    display: inline-block; width:14px; height:14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white; border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle; margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Result */
+  .result-panel { display:flex; flex-direction:column; gap:14px; }
+  .empty-state {
+    flex:1; display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:10px; color:var(--text-muted); padding:60px 20px; text-align:center;
+  }
+  .empty-state .icon { font-size:44px; opacity:0.35; }
+  .empty-state p { font-size:13px; line-height:1.9; }
+
+  .client-header {
+    background: linear-gradient(135deg, #0f2044, #1a2d5a);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 14px; padding: 20px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .client-avatar {
+    width: 60px; height: 60px; border-radius: 50%;
+    border: 2px solid var(--accent);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 24px; background: var(--surface2);
+    overflow:hidden; flex-shrink:0;
+  }
+  .client-avatar img { width:100%; height:100%; object-fit:cover; }
+  .client-meta h2 { font-family:'Noto Serif SC',serif; font-size:18px; margin-bottom:6px; }
+  .client-tags { display:flex; flex-wrap:wrap; gap:5px; }
+  .client-tag {
+    font-size: 11px; padding: 2px 9px; border-radius: 20px;
+    background: rgba(59,130,246,0.15); color: var(--accent2);
+    border: 1px solid rgba(59,130,246,0.3);
+  }
+  .client-tag.gold {
+    background: rgba(245,158,11,0.15); color: #fcd34d;
+    border-color: rgba(245,158,11,0.3);
+  }
+
+  .score-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .score-item {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px; text-align:center;
+  }
+  .score-num {
+    font-family:'Noto Serif SC',serif; font-size:26px;
+    font-weight:700; line-height:1; margin-bottom:5px;
+  }
+  .score-label { font-size:11px; color:var(--text-muted); }
+
+  .analysis-section {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; overflow:hidden;
+  }
+  .section-header {
+    padding: 12px 18px; background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px; font-weight:500; color:var(--text-soft);
+    letter-spacing:1px; display:flex; align-items:center; gap:7px;
+  }
+  .section-body {
+    padding: 18px; font-size: 13px; line-height: 1.9;
+    color: var(--text); white-space: pre-wrap;
+  }
+
+  .demand-grid { display:grid; gap:9px; padding:18px; }
+  .demand-item { display:flex; align-items:center; gap:12px; }
+  .demand-name { width:90px; font-size:12px; color:var(--text-soft); flex-shrink:0; }
+  .demand-bar-wrap {
+    flex:1; height:5px; background:var(--surface2);
+    border-radius:3px; overflow:hidden;
+  }
+  .demand-bar {
+    height:100%; border-radius:3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 1s ease;
+  }
+  .demand-score { font-size:11px; color:var(--text-muted); width:28px; text-align:right; }
+  .demand-reason { font-size:11px; color:var(--text-muted); padding:0 12px 6px 102px; }
+
+  .tips-list { padding:14px 18px; display:flex; flex-direction:column; gap:9px; }
+  .tip-item { display:flex; gap:9px; font-size:13px; line-height:1.7; }
+  .tip-icon { flex-shrink:0; margin-top:1px; }
+  .tip-item.do { color: #86efac; }
+  .tip-item.dont { color: #fca5a5; }
+  .divider { height:1px; background:var(--border); margin:4px 0; }
+
+  .history-list { display:flex; flex-direction:column; gap:7px; }
+  .history-item {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 13px;
+    display:flex; align-items:center; justify-content:space-between;
+    cursor:pointer; transition:border-color 0.2s; font-size:12px;
+  }
+  .history-item:hover { border-color: var(--accent); }
+  .history-time { font-size:10px; color:var(--text-muted); }
+
+  .opening-box {
+    background: rgba(59,130,246,0.06); border-radius:8px;
+    margin:12px; padding:14px;
+    font-style:italic; font-size:13px; line-height:1.8;
+    border-left: 3px solid var(--accent);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🎯</div>
+  <h1>客户画像分析系统</h1>
+  <span class="version">保险销售专用 · AI驱动</span>
+</header>
+
+<div class="container">
+  <!-- LEFT -->
+  <div>
+    <div class="card">
+      <div class="card-title">📋 客户信息录入</div>
+      <div class="form-grid">
+
+        <div class="avatar-upload">
+          <div class="avatar-preview" id="avatarPreview" onclick="document.getElementById('avatarInput').click()">👤</div>
+          <div class="avatar-info">
+            <p>上传微信头像<br>AI将自动解读头像信息</p>
+            <button class="btn-upload" onclick="document.getElementById('avatarInput').click()">选择图片</button>
+          </div>
+          <input type="file" id="avatarInput" accept="image/*" onchange="handleAvatar(this)">
+        </div>
+
+        <div class="form-group">
+          <label>姓名 *</label>
+          <input type="text" id="name" placeholder="如：熊莉">
+        </div>
+        <div class="form-group">
+          <label>性别</label>
+          <select id="gender">
+            <option value="">未知</option>
+            <option value="女">女</option>
+            <option value="男">男</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>出生年月日</label>
+          <input type="date" id="birthday">
+        </div>
+        <div class="form-group">
+          <label>婚姻状况</label>
+          <select id="married">
+            <option value="">未知</option>
+            <option value="未婚">未婚</option>
+            <option value="已婚">已婚</option>
+            <option value="离异">离异</option>
+            <option value="丧偶">丧偶</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>电话号码</label>
+          <input type="text" id="phone" placeholder="如：1573007****">
+        </div>
+        <div class="form-group">
+          <label>所在城市</label>
+          <input type="text" id="city" placeholder="如：成都">
+        </div>
+        <div class="form-group full">
+          <label>工作单位 / 职业</label>
+          <input type="text" id="job" placeholder="如：证券公司，从业8年">
+        </div>
+        <div class="form-group full">
+          <label>子女情况</label>
+          <input type="text" id="children" placeholder="如：有一个3岁女儿">
+        </div>
+        <div class="form-group full">
+          <label>名单来源</label>
+          <select id="source">
+            <option value="">请选择</option>
+            <option value="体检名单">体检名单</option>
+            <option value="车友群">车友群</option>
+            <option value="宝妈群">宝妈群</option>
+            <option value="企业主社群">企业主社群</option>
+            <option value="转介绍">转介绍</option>
+            <option value="陌生拜访">陌生拜访</option>
+            <option value="线上获客">线上获客</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>已有保险（已知）</label>
+          <input type="text" id="existing" placeholder="如：有社保，有一份平安意外险">
+        </div>
+        <div class="form-group full">
+          <label>补充备注（接触中了解到的信息）</label>
+          <textarea id="notes" placeholder="如：朋友圈常发旅行照，有养猫，最近在装修新房..."></textarea>
+          <div class="tags-row">
+            <span class="tag" onclick="addNote('喜欢旅行')">旅行达人</span>
+            <span class="tag" onclick="addNote('有房贷压力')">有房贷</span>
+            <span class="tag" onclick="addNote('有养宠物')">养宠物</span>
+            <span class="tag" onclick="addNote('经常发朋友圈')">活跃社交</span>
+            <span class="tag" onclick="addNote('性格谨慎')">谨慎型</span>
+            <span class="tag" onclick="addNote('决策爽快')">爽快型</span>
+            <span class="tag" onclick="addNote('注重性价比')">价格敏感</span>
+          </div>
+        </div>
+
+      </div>
+      <button class="btn-analyze" id="analyzeBtn" onclick="analyze()">✦ 开始分析客户画像</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🕐 历史记录</div>
+      <div class="history-list" id="historyList">
+        <div style="font-size:12px;color:var(--text-muted);text-align:center;padding:8px;">暂无记录</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="result-panel" id="resultPanel">
+    <div class="empty-state" id="emptyState">
+      <div class="icon">🔍</div>
+      <p>填写左侧客户信息<br>点击「开始分析」生成AI客户画像<br><br>
+      <span style="font-size:11px;color:var(--text-muted)">信息越完整，分析越精准</span></p>
+    </div>
+  </div>
+</div>
+
+<script>
+let avatarBase64 = null;
+let clientHistory = JSON.parse(localStorage.getItem('ch_v2') || '[]');
+
+function handleAvatar(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    avatarBase64 = e.target.result;
+    document.getElementById('avatarPreview').innerHTML = `<img src="${avatarBase64}">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function addNote(text) {
+  const n = document.getElementById('notes');
+  n.value = n.value ? n.value + '，' + text : text;
+}
+
+function getAge(birthday) {
+  if (!birthday) return null;
+  const b = new Date(birthday), t = new Date();
+  let age = t.getFullYear() - b.getFullYear();
+  if (t.getMonth() < b.getMonth() || (t.getMonth() === b.getMonth() && t.getDate() < b.getDate())) age--;
+  return age;
+}
+
+function getCarrier(phone) {
+  const p = phone.replace(/\D/g,'').substring(0,3);
+  const m = {'130':'联通','131':'联通','132':'联通','155':'联通','156':'联通','185':'联通','186':'联通','133':'电信','153':'电信','177':'电信','180':'电信','181':'电信','189':'电信','199':'电信','134':'移动','135':'移动','136':'移动','137':'移动','138':'移动','139':'移动','147':'移动','150':'移动','151':'移动','152':'移动','157':'移动','158':'移动','159':'移动','172':'移动','178':'移动','182':'移动','183':'移动','184':'移动','187':'移动','188':'移动','198':'移动','170':'虚拟号','171':'虚拟号'};
+  return m[p] || '';
+}
+
+function buildPrompt(info) {
+  let t = `请分析以下保险潜在客户信息，返回JSON格式客户画像：\n\n`;
+  if (info.name) t += `姓名：${info.name}\n`;
+  if (info.gender) t += `性别：${info.gender}\n`;
+  if (info.age) t += `年龄：${info.age}岁（${info.birthday}）\n`;
+  if (info.married) t += `婚姻：${info.married}\n`;
+  if (info.phone) t += `电话：${info.phone}（${info.carrier}）\n`;
+  if (info.city) t += `城市：${info.city}\n`;
+  if (info.job) t += `职业：${info.job}\n`;
+  if (info.children) t += `子女：${info.children}\n`;
+  if (info.source) t += `来源：${info.source}\n`;
+  if (info.existing) t += `已有保险：${info.existing}\n`;
+  if (info.notes) t += `补充：${info.notes}\n`;
+  if (avatarBase64) t += `微信头像：已提供图片，请详细分析头像风格、人物气质及性格暗示。\n`;
+
+  t += `\n请返回如下JSON（纯JSON，无markdown，无多余文字）：
+{
+  "summary": "一句话客户总结（20字内）",
+  "tags": ["标签1","标签2","标签3","标签4"],
+  "personality": "性格特质分析，100-150字，含沟通风格和决策方式",
+  "avatar_analysis": "微信头像分析，50字",
+  "demands": [
+    {"name":"重疾险","score":90,"reason":"原因"},
+    {"name":"医疗险","score":85,"reason":"原因"},
+    {"name":"寿险","score":60,"reason":"原因"},
+    {"name":"年金险","score":70,"reason":"原因"},
+    {"name":"意外险","score":75,"reason":"原因"}
+  ],
+  "do_list": ["应该做的1","应该做的2","应该做的3"],
+  "dont_list": ["不该做的1","不该做的2"],
+  "opening": "建议首次接触开场白，60字内，自然不推销感",
+  "scores": {"purchase_power":85,"demand_urgency":75,"contact_difficulty":60},
+  "best_time": "最佳联系时机建议"
+}`;
+  return t;
+}
+
+async function analyze() {
+  const name = document.getElementById('name').value.trim();
+  if (!name) { alert('请至少填写客户姓名'); return; }
+
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spin"></span>正在分析...';
+
+  const age = getAge(document.getElementById('birthday').value);
+  const phone = document.getElementById('phone').value;
+  const info = {
+    name, gender: document.getElementById('gender').value,
+    birthday: document.getElementById('birthday').value,
+    age, phone, carrier: getCarrier(phone),
+    city: document.getElementById('city').value,
+    job: document.getElementById('job').value,
+    married: document.getElementById('married').value,
+    children: document.getElementById('children').value,
+    source: document.getElementById('source').value,
+    existing: document.getElementById('existing').value,
+    notes: document.getElementById('notes').value,
+  };
+
+  document.getElementById('emptyState')?.remove();
+  document.getElementById('resultPanel').innerHTML = `
+    <div class="card" style="text-align:center;padding:40px;color:var(--text-muted)">
+      <div style="font-size:36px;margin-bottom:14px">⚡</div>
+      <p>正在为 <strong style="color:var(--accent2)">${name}</strong> 生成画像...</p>
+      <p style="font-size:12px;margin-top:8px">AI综合分析中，请稍候</p>
+    </div>`;
+
+  try {
+    const content = avatarBase64
+      ? [
+          { type:'image', source:{ type:'base64', media_type:'image/jpeg', data: avatarBase64.split(',')[1] } },
+          { type:'text', text: buildPrompt(info) }
+        ]
+      : buildPrompt(info);
+
+    const resp = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: '你是资深保险销售顾问助手，专门分析潜在客户画像。请只返回纯JSON，不要任何markdown标记或额外文字。',
+        messages: [{ role:'user', content }]
+      })
+    });
+
+    const data = await resp.json();
+    const raw = data.content?.find(b => b.type==='text')?.text || '';
+    let result;
+    try { result = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
+    catch { result = fallback(info); }
+
+    renderResult(result, info);
+
+    clientHistory.unshift({ name, time: new Date().toLocaleString('zh-CN'), info, result, avatar: avatarBase64 });
+    if (clientHistory.length > 10) clientHistory.pop();
+    localStorage.setItem('ch_v2', JSON.stringify(clientHistory));
+    renderHistory();
+
+  } catch(e) {
+    document.getElementById('resultPanel').innerHTML = `
+      <div class="card" style="color:#fca5a5;padding:24px">
+        <p>⚠️ 分析失败：${e.message}</p>
+        <p style="font-size:12px;margin-top:8px;color:var(--text-muted)">请检查网络连接后重试</p>
+      </div>`;
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '✦ 重新分析';
+}
+
+function fallback(info) {
+  return {
+    summary: `${info.name} · ${info.age ? info.age+'岁' : ''} · ${info.job||''}`,
+    tags: [info.gender||'客户', info.married||'', info.source||'', '待深入了解'].filter(Boolean),
+    personality: '根据现有信息，该客户情况需进一步了解，建议以专业姿态初次接触，建立信任后再深入分析。',
+    avatar_analysis: avatarBase64 ? '已上传头像，请重试以获取AI解读' : '暂无头像信息',
+    demands: [
+      {name:'重疾险',score:80,reason:'核心保障需求'},
+      {name:'医疗险',score:85,reason:'基础刚需'},
+      {name:'寿险',score:60,reason:'视家庭情况'},
+      {name:'年金险',score:65,reason:'长期规划'},
+      {name:'意外险',score:75,reason:'基础配置'}
+    ],
+    do_list:['专业对等沟通','从需求出发而非产品','给足思考空间'],
+    dont_list:['急于成交','夸大产品收益'],
+    opening:`您好，我是XX，通过${info.source||'渠道'}认识您，专注家庭保障规划，方便聊几分钟吗？`,
+    scores:{purchase_power:75, demand_urgency:70, contact_difficulty:65},
+    best_time:'工作日上午10点或下午3-5点'
+  };
+}
+
+function scoreColor(s) { return s>=80?'#10b981':s>=60?'#f59e0b':'#ef4444'; }
+
+function renderResult(r, info) {
+  const avatarHtml = avatarBase64
+    ? `<img src="${avatarBase64}">`
+    : `<span>${info.gender==='女'?'👩':info.gender==='男'?'👨':'👤'}</span>`;
+
+  const tagsHtml = (r.tags||[]).map((t,i)=>`<span class="client-tag ${i===0?'gold':''}">${t}</span>`).join('');
+
+  const demandsHtml = (r.demands||[]).map(d=>`
+    <div class="demand-item">
+      <div class="demand-name">${d.name}</div>
+      <div class="demand-bar-wrap"><div class="demand-bar" style="width:0%" data-w="${d.score}%"></div></div>
+      <div class="demand-score">${d.score}</div>
+    </div>
+    ${d.reason?`<div class="demand-reason">${d.reason}</div>`:''}
+  `).join('');
+
+  const doHtml = (r.do_list||[]).map(t=>`<div class="tip-item do"><span class="tip-icon">✅</span><span>${t}</span></div>`).join('');
+  const dontHtml = (r.dont_list||[]).map(t=>`<div class="tip-item dont"><span class="tip-icon">❌</span><span>${t}</span></div>`).join('');
+
+  const sc = r.scores||{};
+
+  document.getElementById('resultPanel').innerHTML = `
+    <div class="client-header">
+      <div class="client-avatar">${avatarHtml}</div>
+      <div class="client-meta">
+        <h2>${info.name} <span style="font-size:13px;font-weight:400;color:var(--text-muted)">${info.age?info.age+'岁':''}</span></h2>
+        <div class="client-tags">${tagsHtml}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:7px">📌 ${r.summary||''}</div>
+      </div>
+    </div>
+
+    <div class="score-row">
+      <div class="score-item">
+        <div class="score-num" style="color:${scoreColor(sc.purchase_power||75)}">${sc.purchase_power||75}</div>
+        <div class="score-label">购买力指数</div>
+      </div>
+      <div class="score-item">
+        <div class="score-num" style="color:${scoreColor(sc.demand_urgency||70)}">${sc.demand_urgency||70}</div>
+        <div class="score-label">需求紧迫度</div>
+      </div>
+      <div class="score-item">
+        <div class="score-num" style="color:${scoreColor(100-(sc.contact_difficulty||60))}">${sc.contact_difficulty||60}</div>
+        <div class="score-label">沟通难度</div>
+      </div>
+    </div>
+
+    <div class="analysis-section">
+      <div class="section-header">🧠 性格特质分析</div>
+      <div class="section-body">${r.personality||''}</div>
+    </div>
+
+    <div class="analysis-section">
+      <div class="section-header">🖼️ 微信头像解读</div>
+      <div class="section-body">${r.avatar_analysis||''}</div>
+    </div>
+
+    <div class="analysis-section">
+      <div class="section-header">📊 保险需求优先级</div>
+      <div class="demand-grid">${demandsHtml}</div>
+    </div>
+
+    <div class="analysis-section">
+      <div class="section-header">💬 沟通策略</div>
+      <div class="tips-list">${doHtml}<div class="divider"></div>${dontHtml}</div>
+    </div>
+
+    <div class="analysis-section">
+      <div class="section-header">🎯 首次接触开场白</div>
+      <div class="opening-box">"${r.opening||''}"</div>
+    </div>
+
+    <div class="analysis-section">
+      <div class="section-header">⏰ 最佳联系时机</div>
+      <div class="section-body">${r.best_time||''}</div>
+    </div>
+  `;
+
+  setTimeout(()=>{
+    document.querySelectorAll('.demand-bar').forEach(b=>{
+      b.style.width = b.dataset.w;
+    });
+  }, 100);
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (!clientHistory.length) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:8px;">暂无记录</div>';
+    return;
+  }
+  list.innerHTML = clientHistory.slice(0,5).map((h,i)=>`
+    <div class="history-item" onclick="loadHistory(${i})">
+      <span>${h.name} · ${h.info.age?h.info.age+'岁':''} · ${h.info.job||h.info.source||''}</span>
+      <span class="history-time">${h.time}</span>
+    </div>`).join('');
+}
+
+function loadHistory(i) {
+  const h = clientHistory[i];
+  if (!h) return;
+  const f = h.info;
+  document.getElementById('name').value = f.name||'';
+  document.getElementById('gender').value = f.gender||'';
+  document.getElementById('birthday').value = f.birthday||'';
+  document.getElementById('married').value = f.married||'';
+  document.getElementById('phone').value = f.phone||'';
+  document.getElementById('city').value = f.city||'';
+  document.getElementById('job').value = f.job||'';
+  document.getElementById('children').value = f.children||'';
+  document.getElementById('source').value = f.source||'';
+  document.getElementById('existing').value = f.existing||'';
+  document.getElementById('notes').value = f.notes||'';
+  if (h.avatar) {
+    avatarBase64 = h.avatar;
+    document.getElementById('avatarPreview').innerHTML = `<img src="${h.avatar}">`;
+  }
+  if (h.result) renderResult(h.result, f);
+}
+
+renderHistory();
+</script>
+</body>
+</html>
