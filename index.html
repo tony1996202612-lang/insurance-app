@@ -281,6 +281,10 @@
           <input type="text" id="name" placeholder="如：熊莉">
         </div>
         <div class="form-group">
+          <label>微信昵称</label>
+          <input type="text" id="wechatName" placeholder="如：小一、Lily、奶糖🍬">
+        </div>
+        <div class="form-group">
           <label>性别</label>
           <select id="gender">
             <option value="">未知</option>
@@ -409,6 +413,7 @@ function getCarrier(phone) {
 function buildPrompt(info) {
   let t = `请分析以下保险潜在客户信息，返回JSON格式客户画像：\n\n`;
   if (info.name) t += `姓名：${info.name}\n`;
+  if (info.wechatName) t += `微信昵称：${info.wechatName}（请重点分析昵称风格、用字含义、性格暗示，以及与真实姓名的差异）\n`;
   if (info.gender) t += `性别：${info.gender}\n`;
   if (info.age) t += `年龄：${info.age}岁（${info.birthday}）\n`;
   if (info.married) t += `婚姻：${info.married}\n`;
@@ -426,6 +431,7 @@ function buildPrompt(info) {
   "summary": "一句话客户总结（20字内）",
   "tags": ["标签1","标签2","标签3","标签4"],
   "personality": "性格特质分析，100-150字，含沟通风格和决策方式",
+  "wechat_name_analysis": "微信昵称深度解读，60字，分析昵称选择背后的性格、边界感、自我认知",
   "avatar_analysis": "微信头像分析，50字",
   "demands": [
     {"name":"重疾险","score":90,"reason":"原因"},
@@ -454,7 +460,8 @@ async function analyze() {
   const age = getAge(document.getElementById('birthday').value);
   const phone = document.getElementById('phone').value;
   const info = {
-    name, gender: document.getElementById('gender').value,
+    name, wechatName: document.getElementById('wechatName').value,
+    gender: document.getElementById('gender').value,
     birthday: document.getElementById('birthday').value,
     age, phone, carrier: getCarrier(phone),
     city: document.getElementById('city').value,
@@ -590,6 +597,12 @@ function renderResult(r, info) {
       <div class="section-body">${r.personality||''}</div>
     </div>
 
+    ${r.wechat_name_analysis ? `
+    <div class="analysis-section">
+      <div class="section-header">💬 微信昵称解读</div>
+      <div class="section-body">${r.wechat_name_analysis||''}</div>
+    </div>` : ''}
+
     <div class="analysis-section">
       <div class="section-header">🖼️ 微信头像解读</div>
       <div class="section-body">${r.avatar_analysis||''}</div>
@@ -641,6 +654,7 @@ function loadHistory(i) {
   if (!h) return;
   const f = h.info;
   document.getElementById('name').value = f.name||'';
+  document.getElementById('wechatName').value = f.wechatName||'';
   document.getElementById('gender').value = f.gender||'';
   document.getElementById('birthday').value = f.birthday||'';
   document.getElementById('married').value = f.married||'';
