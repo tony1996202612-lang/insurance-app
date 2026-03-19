@@ -6,673 +6,997 @@
 <title>客户画像分析系统</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0e1a;
-    --surface: #111827;
-    --surface2: #1a2236;
-    --border: #1e2d45;
-    --accent: #3b82f6;
-    --accent2: #60a5fa;
-    --gold: #f59e0b;
-    --text: #e2e8f0;
-    --text-muted: #64748b;
-    --text-soft: #94a3b8;
-    --tag-bg: #1e3a5f;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans SC', sans-serif;
-    min-height: 100vh;
-    background-image:
-      radial-gradient(ellipse at 20% 20%, rgba(59,130,246,0.07) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 80%, rgba(245,158,11,0.04) 0%, transparent 50%);
-  }
-  header {
-    padding: 20px 32px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    background: rgba(17,24,39,0.9);
-    backdrop-filter: blur(10px);
-    position: sticky; top: 0; z-index: 100;
-  }
-  .logo {
-    width: 36px; height: 36px;
-    background: linear-gradient(135deg, var(--accent), var(--gold));
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-  }
-  header h1 {
-    font-family: 'Noto Serif SC', serif;
-    font-size: 18px; font-weight: 700; letter-spacing: 2px;
-    background: linear-gradient(90deg, #e2e8f0, #93c5fd);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  header .version { margin-left: auto; font-size: 11px; color: var(--text-muted); }
+:root{
+  --bg:#0a0e1a;--surface:#111827;--s2:#1a2236;--border:#1e2d45;
+  --accent:#3b82f6;--a2:#60a5fa;--gold:#f59e0b;--text:#e2e8f0;
+  --muted:#64748b;--soft:#94a3b8;--red:#ef4444;--green:#10b981;--tag:#1e3a5f;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans SC',sans-serif;min-height:100vh;
+  background-image:radial-gradient(ellipse at 20% 20%,rgba(59,130,246,.07) 0%,transparent 50%),
+  radial-gradient(ellipse at 80% 80%,rgba(245,158,11,.04) 0%,transparent 50%);}
 
-  .container {
-    max-width: 1100px; margin: 0 auto; padding: 28px 16px;
-    display: grid; grid-template-columns: 400px 1fr; gap: 20px;
-  }
-  @media(max-width:820px){ .container{ grid-template-columns:1fr; } }
+/* ── OVERLAY SCREENS ── */
+.scr{display:none;position:fixed;inset:0;z-index:900;background:var(--bg);
+  align-items:center;justify-content:center;overflow-y:auto;
+  background-image:radial-gradient(ellipse at 30% 40%,rgba(59,130,246,.1) 0%,transparent 60%);}
+.scr.on{display:flex;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:20px;
+  padding:42px 36px;width:420px;box-shadow:0 20px 60px rgba(0,0,0,.45);
+  animation:fadeUp .4s ease;margin:auto;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.blogo{font-size:36px;text-align:center;margin-bottom:14px;}
+.btitle{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:700;text-align:center;
+  letter-spacing:2px;margin-bottom:5px;
+  background:linear-gradient(90deg,#e2e8f0,#93c5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.bsub{font-size:12px;color:var(--muted);text-align:center;margin-bottom:26px;line-height:1.8;}
+.badge{display:block;text-align:center;width:fit-content;margin:0 auto 20px;
+  background:rgba(245,158,11,.15);color:var(--gold);border:1px solid rgba(245,158,11,.3);
+  border-radius:20px;font-size:11px;padding:4px 14px;}
+.fl{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+.fl label{font-size:11px;color:var(--muted);letter-spacing:.5px;}
+.fi{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:9px;
+  color:var(--text);font-family:'Noto Sans SC',sans-serif;font-size:13px;padding:11px 14px;
+  outline:none;transition:border-color .2s,box-shadow .2s;}
+.fi:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.12);}
+.btn{width:100%;padding:13px;border:none;border-radius:10px;color:#fff;
+  font-family:'Noto Serif SC',serif;font-size:14px;font-weight:600;letter-spacing:2px;
+  cursor:pointer;transition:all .3s;margin-top:6px;}
+.btn-p{background:linear-gradient(135deg,#1d4ed8,#2563eb);}
+.btn-p:hover{background:linear-gradient(135deg,#2563eb,#3b82f6);transform:translateY(-1px);box-shadow:0 8px 24px rgba(59,130,246,.3);}
+.btn-g{background:linear-gradient(135deg,#b45309,#d97706);}
+.btn-g:hover{background:linear-gradient(135deg,#d97706,#f59e0b);transform:translateY(-1px);}
+.btn-sec{background:var(--s2);color:var(--soft);border:1px solid var(--border);}
+.btn-sec:hover{border-color:var(--accent);color:var(--a2);}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none!important;box-shadow:none!important;}
+.err{font-size:12px;color:var(--red);text-align:center;min-height:18px;margin-top:8px;}
+.suc{font-size:12px;color:var(--green);text-align:center;min-height:18px;margin-top:8px;}
+.hint{font-size:11px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.9;}
+.link{color:var(--a2);cursor:pointer;}
+.link:hover{text-decoration:underline;}
+.sep{height:1px;background:var(--border);margin:18px 0;}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;margin-right:5px;}
+@keyframes sp{to{transform:rotate(360deg)}}
 
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px; padding: 24px;
-  }
-  .card + .card { margin-top: 16px; }
+/* ── HEADER ── */
+header{padding:0 28px;height:58px;border-bottom:1px solid var(--border);display:flex;
+  align-items:center;gap:12px;background:rgba(17,24,39,.96);backdrop-filter:blur(10px);
+  position:sticky;top:0;z-index:100;}
+.logo{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--gold));
+  border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+header h1{font-family:'Noto Serif SC',serif;font-size:16px;font-weight:700;letter-spacing:2px;
+  background:linear-gradient(90deg,#e2e8f0,#93c5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hdr-r{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.ubadge{display:flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--border);
+  border-radius:20px;padding:4px 13px;font-size:12px;}
+.udot{width:7px;height:7px;border-radius:50%;background:var(--green);}
+.udot.adm{background:var(--gold);}
+.xbtn{font-size:11px;color:var(--muted);background:none;border:1px solid var(--border);
+  border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit;transition:all .2s;}
+.xbtn:hover{border-color:var(--red);color:var(--red);}
 
-  .card-title {
-    font-size: 12px; color: var(--text-muted);
-    letter-spacing: 2px; text-transform: uppercase;
-    margin-bottom: 20px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .card-title::after { content:''; flex:1; height:1px; background:var(--border); }
+/* ── MODE SWITCHER ── */
+#modeBar{display:none;background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;}
+.mtab{display:inline-block;padding:11px 20px;font-size:13px;color:var(--muted);
+  cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;}
+.mtab.on{color:var(--a2);border-bottom-color:var(--a2);}
 
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .form-group { display: flex; flex-direction: column; gap: 5px; }
-  .form-group.full { grid-column: 1/-1; }
+/* ── ADMIN BANNER ── */
+#admBanner{display:none;background:linear-gradient(90deg,rgba(245,158,11,.14),transparent);
+  border-bottom:1px solid rgba(245,158,11,.25);padding:7px 28px;font-size:12px;
+  color:var(--gold);align-items:center;gap:8px;}
 
-  label { font-size: 11px; color: var(--text-muted); letter-spacing: 0.5px; }
+/* ── ADMIN ── */
+#admView{display:none;}
+.atabs{display:flex;border-bottom:1px solid var(--border);padding:0 18px;background:var(--surface);}
+.atab{padding:11px 18px;font-size:12px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;white-space:nowrap;}
+.atab.on{color:var(--gold);border-bottom-color:var(--gold);}
+.abody{padding:22px 18px;max-width:960px;margin:0 auto;}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.sc2{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;}
+.sn{font-family:'Noto Serif SC',serif;font-size:26px;color:var(--a2);margin-bottom:4px;}
+.sl{font-size:11px;color:var(--muted);}
+.ucard{background:var(--surface);border:1px solid var(--border);border-radius:11px;
+  padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .2s;}
+.ucard:hover{border-color:var(--accent);}
+.rt{width:100%;border-collapse:collapse;font-size:12px;}
+.rt th{background:var(--s2);padding:9px 11px;text-align:left;color:var(--muted);border-bottom:1px solid var(--border);}
+.rt td{padding:9px 11px;border-bottom:1px solid var(--border);}
+.rt tr:hover td{background:rgba(255,255,255,.02);}
+.utag{font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(59,130,246,.15);color:var(--a2);}
+.utag.adm{background:rgba(245,158,11,.15);color:var(--gold);}
+.sdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;}
+.dg{background:var(--green);}.do{background:var(--gold);}.dr2{background:var(--red);}
+.cpanel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px;}
+.cpanel h3{font-family:'Noto Serif SC',serif;font-size:14px;color:var(--a2);margin-bottom:14px;}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.cbtn{padding:10px 22px;background:var(--accent);border:none;border-radius:8px;color:#fff;
+  font-family:'Noto Sans SC',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;}
+.cbtn:hover{background:var(--a2);}
+.dbtn{font-size:11px;color:var(--red);background:none;border:1px solid rgba(239,68,68,.3);
+  border-radius:5px;padding:2px 8px;cursor:pointer;font-family:inherit;margin-left:4px;}
+.tbtn{font-size:11px;background:none;border-radius:5px;padding:2px 8px;cursor:pointer;font-family:inherit;}
 
-  input, select, textarea {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px; color: var(--text);
-    font-family: 'Noto Sans SC', sans-serif;
-    font-size: 13px; padding: 9px 12px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none; width: 100%;
-  }
-  input:focus, select:focus, textarea:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
-  }
-  select option { background: var(--surface2); }
-  textarea { resize: vertical; min-height: 75px; }
+/* ── APP ── */
+#appView{display:none;}
+.wrap{max-width:1080px;margin:0 auto;padding:22px 14px;display:grid;grid-template-columns:385px 1fr;gap:18px;}
+@media(max-width:800px){.wrap{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;}
+.card+.card{margin-top:14px;}
+.ctitle{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.ctitle::after{content:'';flex:1;height:1px;background:var(--border);}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fg.full{grid-column:1/-1;}
+.fg label{font-size:11px;color:var(--muted);}
+.fg input,.fg select,.fg textarea{background:var(--s2);border:1px solid var(--border);border-radius:7px;
+  color:var(--text);font-family:'Noto Sans SC',sans-serif;font-size:13px;padding:8px 11px;
+  outline:none;width:100%;transition:border-color .2s,box-shadow .2s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.1);}
+.fg select option{background:var(--s2);}
+.fg textarea{resize:vertical;min-height:70px;}
+.avrow{grid-column:1/-1;display:flex;align-items:center;gap:13px;}
+.avp{width:62px;height:62px;border-radius:50%;border:2px dashed var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:24px;background:var(--s2);
+  cursor:pointer;overflow:hidden;flex-shrink:0;transition:border-color .2s;}
+.avp:hover{border-color:var(--accent);}
+.avp img{width:100%;height:100%;object-fit:cover;}
+.avinfo p{font-size:12px;color:var(--soft);margin-bottom:6px;}
+.upbtn{font-size:12px;color:var(--a2);background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);
+  border-radius:6px;padding:4px 11px;cursor:pointer;font-family:inherit;}
+.upbtn:hover{background:rgba(59,130,246,.2);}
+input[type=file]{display:none;}
+.trow{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;}
+.tag{font-size:11px;background:var(--tag);color:var(--a2);border-radius:20px;
+  padding:2px 9px;cursor:pointer;border:1px solid transparent;transition:all .2s;}
+.tag:hover{border-color:var(--accent);background:rgba(59,130,246,.18);}
+.abtn{width:100%;margin-top:16px;padding:12px;background:linear-gradient(135deg,#1d4ed8,#2563eb);
+  border:none;border-radius:9px;color:#fff;font-family:'Noto Serif SC',serif;font-size:14px;
+  font-weight:600;letter-spacing:3px;cursor:pointer;transition:all .3s;}
+.abtn:hover{background:linear-gradient(135deg,#2563eb,#3b82f6);transform:translateY(-1px);box-shadow:0 8px 22px rgba(59,130,246,.28);}
+.abtn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
 
-  .avatar-upload { grid-column:1/-1; display:flex; align-items:center; gap:14px; }
-  .avatar-preview {
-    width: 66px; height: 66px; border-radius: 50%;
-    border: 2px dashed var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 26px; background: var(--surface2);
-    cursor: pointer; overflow: hidden; flex-shrink: 0;
-    transition: border-color 0.2s;
-  }
-  .avatar-preview:hover { border-color: var(--accent); }
-  .avatar-preview img { width:100%; height:100%; object-fit:cover; }
-  .avatar-info p { font-size: 12px; color: var(--text-soft); margin-bottom: 7px; }
-  .btn-upload {
-    font-size: 12px; color: var(--accent2);
-    background: rgba(59,130,246,0.1);
-    border: 1px solid rgba(59,130,246,0.3);
-    border-radius: 6px; padding: 5px 12px;
-    cursor: pointer; transition: all 0.2s; font-family: inherit;
-  }
-  .btn-upload:hover { background: rgba(59,130,246,0.2); }
-  input[type="file"] { display: none; }
+/* result */
+.rp{display:flex;flex-direction:column;gap:12px;}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:9px;color:var(--muted);padding:56px 18px;text-align:center;}
+.empty .ico{font-size:42px;opacity:.3;}
+.chdr{background:linear-gradient(135deg,#0f2044,#1a2d5a);border:1px solid rgba(59,130,246,.3);
+  border-radius:13px;padding:18px;display:flex;align-items:center;gap:14px;}
+.cav{width:56px;height:56px;border-radius:50%;border:2px solid var(--accent);
+  display:flex;align-items:center;justify-content:center;font-size:22px;background:var(--s2);overflow:hidden;flex-shrink:0;}
+.cav img{width:100%;height:100%;object-fit:cover;}
+.cmeta h2{font-family:'Noto Serif SC',serif;font-size:17px;margin-bottom:5px;}
+.ctags{display:flex;flex-wrap:wrap;gap:4px;}
+.ctag{font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(59,130,246,.14);color:var(--a2);border:1px solid rgba(59,130,246,.3);}
+.ctag.g{background:rgba(245,158,11,.14);color:#fcd34d;border-color:rgba(245,158,11,.3);}
+.srow{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+.si{background:var(--s2);border:1px solid var(--border);border-radius:11px;padding:12px;text-align:center;}
+.snum{font-family:'Noto Serif SC',serif;font-size:24px;font-weight:700;line-height:1;margin-bottom:4px;}
+.slb{font-size:10px;color:var(--muted);}
+.asec{background:var(--surface);border:1px solid var(--border);border-radius:11px;overflow:hidden;}
+.ash{padding:10px 16px;background:var(--s2);border-bottom:1px solid var(--border);font-size:11px;font-weight:500;color:var(--soft);letter-spacing:1px;}
+.asb{padding:16px;font-size:13px;line-height:1.9;color:var(--text);white-space:pre-wrap;}
+.dg2{display:grid;gap:8px;padding:16px;}
+.di{display:flex;align-items:center;gap:10px;}
+.dn{width:80px;font-size:11px;color:var(--soft);flex-shrink:0;}
+.dbw{flex:1;height:4px;background:var(--s2);border-radius:2px;overflow:hidden;}
+.db{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--a2));transition:width 1s ease;}
+.ds{font-size:10px;color:var(--muted);width:26px;text-align:right;}
+.dr{font-size:10px;color:var(--muted);padding:0 10px 5px 90px;}
+.tlist{padding:12px 16px;display:flex;flex-direction:column;gap:8px;}
+.ti{display:flex;gap:8px;font-size:12px;line-height:1.7;}
+.ti.do2{color:#86efac;}.ti.dont{color:#fca5a5;}
+.hr{height:1px;background:var(--border);margin:3px 0;}
+.opb{background:rgba(59,130,246,.06);border-radius:7px;margin:10px;padding:12px;
+  font-style:italic;font-size:12px;line-height:1.8;border-left:3px solid var(--accent);}
+.hl{display:flex;flex-direction:column;gap:6px;}
+.hi{background:var(--s2);border:1px solid var(--border);border-radius:7px;padding:8px 12px;
+  display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color .2s;font-size:11px;}
+.hi:hover{border-color:var(--accent);}
+.ht{font-size:10px;color:var(--muted);}
 
-  .tags-row { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
-  .tag {
-    font-size: 11px; background: var(--tag-bg); color: var(--accent2);
-    border-radius: 20px; padding: 3px 10px;
-    cursor: pointer; border: 1px solid transparent; transition: all 0.2s;
-  }
-  .tag:hover { border-color: var(--accent); background: rgba(59,130,246,0.2); }
+/* ── CLEAR MODAL ── */
+#clrModal{display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.78);
+  backdrop-filter:blur(4px);align-items:center;justify-content:center;}
+#clrModal.on{display:flex;}
+.mbox{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:32px 28px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:fadeUp .3s ease;text-align:center;}
+.mico{font-size:40px;margin-bottom:12px;}
+.mtit{font-family:'Noto Serif SC',serif;font-size:16px;margin-bottom:8px;}
+.mdesc{font-size:12px;color:var(--muted);line-height:1.9;margin-bottom:22px;}
+.mbtns{display:flex;gap:10px;justify-content:center;}
+.mc{padding:10px 20px;background:var(--red);border:none;border-radius:8px;color:#fff;font-family:'Noto Sans SC',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;}
+.mc:hover{background:#dc2626;transform:translateY(-1px);}
+.mk{padding:10px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Noto Sans SC',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;}
+.mk:hover{border-color:var(--a2);color:var(--a2);}
 
-  .btn-analyze {
-    width: 100%; margin-top: 20px; padding: 13px;
-    background: linear-gradient(135deg, #1d4ed8, #2563eb);
-    border: none; border-radius: 10px; color: white;
-    font-family: 'Noto Serif SC', serif;
-    font-size: 14px; font-weight: 600; letter-spacing: 3px;
-    cursor: pointer; transition: all 0.3s;
-  }
-  .btn-analyze:hover {
-    background: linear-gradient(135deg, #2563eb, #3b82f6);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(59,130,246,0.3);
-  }
-  .btn-analyze:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
-  .loading-spin {
-    display: inline-block; width:14px; height:14px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: white; border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    vertical-align: middle; margin-right: 6px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Result */
-  .result-panel { display:flex; flex-direction:column; gap:14px; }
-  .empty-state {
-    flex:1; display:flex; flex-direction:column;
-    align-items:center; justify-content:center;
-    gap:10px; color:var(--text-muted); padding:60px 20px; text-align:center;
-  }
-  .empty-state .icon { font-size:44px; opacity:0.35; }
-  .empty-state p { font-size:13px; line-height:1.9; }
-
-  .client-header {
-    background: linear-gradient(135deg, #0f2044, #1a2d5a);
-    border: 1px solid rgba(59,130,246,0.3);
-    border-radius: 14px; padding: 20px;
-    display: flex; align-items: center; gap: 16px;
-  }
-  .client-avatar {
-    width: 60px; height: 60px; border-radius: 50%;
-    border: 2px solid var(--accent);
-    display:flex; align-items:center; justify-content:center;
-    font-size: 24px; background: var(--surface2);
-    overflow:hidden; flex-shrink:0;
-  }
-  .client-avatar img { width:100%; height:100%; object-fit:cover; }
-  .client-meta h2 { font-family:'Noto Serif SC',serif; font-size:18px; margin-bottom:6px; }
-  .client-tags { display:flex; flex-wrap:wrap; gap:5px; }
-  .client-tag {
-    font-size: 11px; padding: 2px 9px; border-radius: 20px;
-    background: rgba(59,130,246,0.15); color: var(--accent2);
-    border: 1px solid rgba(59,130,246,0.3);
-  }
-  .client-tag.gold {
-    background: rgba(245,158,11,0.15); color: #fcd34d;
-    border-color: rgba(245,158,11,0.3);
-  }
-
-  .score-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-  .score-item {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 12px; padding: 14px; text-align:center;
-  }
-  .score-num {
-    font-family:'Noto Serif SC',serif; font-size:26px;
-    font-weight:700; line-height:1; margin-bottom:5px;
-  }
-  .score-label { font-size:11px; color:var(--text-muted); }
-
-  .analysis-section {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; overflow:hidden;
-  }
-  .section-header {
-    padding: 12px 18px; background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-    font-size: 12px; font-weight:500; color:var(--text-soft);
-    letter-spacing:1px; display:flex; align-items:center; gap:7px;
-  }
-  .section-body {
-    padding: 18px; font-size: 13px; line-height: 1.9;
-    color: var(--text); white-space: pre-wrap;
-  }
-
-  .demand-grid { display:grid; gap:9px; padding:18px; }
-  .demand-item { display:flex; align-items:center; gap:12px; }
-  .demand-name { width:90px; font-size:12px; color:var(--text-soft); flex-shrink:0; }
-  .demand-bar-wrap {
-    flex:1; height:5px; background:var(--surface2);
-    border-radius:3px; overflow:hidden;
-  }
-  .demand-bar {
-    height:100%; border-radius:3px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    transition: width 1s ease;
-  }
-  .demand-score { font-size:11px; color:var(--text-muted); width:28px; text-align:right; }
-  .demand-reason { font-size:11px; color:var(--text-muted); padding:0 12px 6px 102px; }
-
-  .tips-list { padding:14px 18px; display:flex; flex-direction:column; gap:9px; }
-  .tip-item { display:flex; gap:9px; font-size:13px; line-height:1.7; }
-  .tip-icon { flex-shrink:0; margin-top:1px; }
-  .tip-item.do { color: #86efac; }
-  .tip-item.dont { color: #fca5a5; }
-  .divider { height:1px; background:var(--border); margin:4px 0; }
-
-  .history-list { display:flex; flex-direction:column; gap:7px; }
-  .history-item {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 8px; padding: 9px 13px;
-    display:flex; align-items:center; justify-content:space-between;
-    cursor:pointer; transition:border-color 0.2s; font-size:12px;
-  }
-  .history-item:hover { border-color: var(--accent); }
-  .history-time { font-size:10px; color:var(--text-muted); }
-
-  .opening-box {
-    background: rgba(59,130,246,0.06); border-radius:8px;
-    margin:12px; padding:14px;
-    font-style:italic; font-size:13px; line-height:1.8;
-    border-left: 3px solid var(--accent);
-  }
+/* ── PWD MODAL ── */
+#pwdModal{display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.78);backdrop-filter:blur(4px);align-items:center;justify-content:center;}
+#pwdModal.on{display:flex;}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">🎯</div>
-  <h1>客户画像分析系统</h1>
-  <span class="version">保险销售专用 · AI驱动</span>
-</header>
+<!-- ══ SCREEN: FIRST-TIME SETUP ══ -->
+<div class="scr" id="setupScr">
+  <div class="box">
+    <div class="blogo">⚙️</div>
+    <div class="btitle">系统初始化</div>
+    <div class="bsub">首次使用，请为管理员账号设置密码</div>
+    <span class="badge">管理员账号：Admin962026H001</span>
+    <div class="fl"><label>设置登录密码（至少6位）</label>
+      <input class="fi" type="password" id="sp1" placeholder="建议字母+数字组合" autocomplete="new-password"></div>
+    <div class="fl"><label>确认密码</label>
+      <input class="fi" type="password" id="sp2" placeholder="再次输入" autocomplete="new-password"
+        onkeydown="if(event.key==='Enter')doSetup()"></div>
+    <button class="btn btn-g" onclick="doSetup()">完成设置，进入系统</button>
+    <div class="err" id="setupErr"></div>
+    <div class="hint">此密码仅您本人知晓，请妥善保管<br>进入系统后可随时修改密码</div>
+  </div>
+</div>
 
-<div class="container">
-  <!-- LEFT -->
-  <div>
-    <div class="card">
-      <div class="card-title">📋 客户信息录入</div>
-      <div class="form-grid">
+<!-- ══ SCREEN: LOGIN ══ -->
+<div class="scr" id="loginScr">
+  <div class="box">
+    <div class="blogo">🔐</div>
+    <div class="btitle">客户画像分析系统</div>
+    <div class="bsub">保险销售专用 · 请登录您的账号</div>
+    <div class="fl"><label>账号（邮箱 或 Admin工号）</label>
+      <input class="fi" type="text" id="lu" placeholder="输入邮箱或管理员工号" autocomplete="off" autocomplete="username"></div>
+    <div class="fl"><label>密码</label>
+      <input class="fi" type="password" id="lp" placeholder="输入密码" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-p" onclick="doLogin()">登 录</button>
+    <div class="err" id="loginErr"></div>
+    <div class="sep"></div>
+    <button class="btn btn-sec" onclick="showReg()">📝 注册新账号</button>
+    <div class="hint">没有账号？点击上方注册，或联系管理员</div>
+  </div>
+</div>
 
-        <div class="avatar-upload">
-          <div class="avatar-preview" id="avatarPreview" onclick="document.getElementById('avatarInput').click()">👤</div>
-          <div class="avatar-info">
-            <p>上传微信头像<br>AI将自动解读头像信息</p>
-            <button class="btn-upload" onclick="document.getElementById('avatarInput').click()">选择图片</button>
-          </div>
-          <input type="file" id="avatarInput" accept="image/*" onchange="handleAvatar(this)">
-        </div>
+<!-- ══ SCREEN: REGISTER ══ -->
+<div class="scr" id="regScr">
+  <div class="box">
+    <div class="blogo">📝</div>
+    <div class="btitle">注册账号</div>
+    <div class="bsub">填写信息后，系统将自动发送密码到您的邮箱</div>
+    <div class="fl"><label>姓名</label>
+      <input class="fi" type="text" id="rn" placeholder="您的真实姓名"></div>
+    <div class="fl"><label>邮箱地址</label>
+      <input class="fi" type="email" id="re" placeholder="用于接收密码和登录"></div>
+    <button class="btn btn-p" id="regBtn" onclick="doRegister()">提交注册申请</button>
+    <div class="err" id="regErr"></div>
+    <div class="suc" id="regSuc"></div>
+    <div class="hint"><span class="link" onclick="showLogin()">← 返回登录</span></div>
+  </div>
+</div>
 
-        <div class="form-group">
-          <label>姓名 *</label>
-          <input type="text" id="name" placeholder="如：熊莉">
-        </div>
-        <div class="form-group">
-          <label>微信昵称</label>
-          <input type="text" id="wechatName" placeholder="如：小一、Lily、奶糖🍬">
-        </div>
-        <div class="form-group">
-          <label>性别</label>
-          <select id="gender">
-            <option value="">未知</option>
-            <option value="女">女</option>
-            <option value="男">男</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>出生年月日</label>
-          <input type="date" id="birthday">
-        </div>
-        <div class="form-group">
-          <label>婚姻状况</label>
-          <select id="married">
-            <option value="">未知</option>
-            <option value="未婚">未婚</option>
-            <option value="已婚">已婚</option>
-            <option value="离异">离异</option>
-            <option value="丧偶">丧偶</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>电话号码</label>
-          <input type="text" id="phone" placeholder="如：1573007****">
-        </div>
-        <div class="form-group">
-          <label>所在城市</label>
-          <input type="text" id="city" placeholder="如：成都">
-        </div>
-        <div class="form-group full">
-          <label>工作单位 / 职业</label>
-          <input type="text" id="job" placeholder="如：证券公司，从业8年">
-        </div>
-        <div class="form-group full">
-          <label>子女情况</label>
-          <input type="text" id="children" placeholder="如：有一个3岁女儿">
-        </div>
-        <div class="form-group full">
-          <label>名单来源</label>
-          <select id="source">
-            <option value="">请选择</option>
-            <option value="体检名单">体检名单</option>
-            <option value="车友群">车友群</option>
-            <option value="宝妈群">宝妈群</option>
-            <option value="企业主社群">企业主社群</option>
-            <option value="转介绍">转介绍</option>
-            <option value="陌生拜访">陌生拜访</option>
-            <option value="线上获客">线上获客</option>
-            <option value="其他">其他</option>
-          </select>
-        </div>
-        <div class="form-group full">
-          <label>已有保险（已知）</label>
-          <input type="text" id="existing" placeholder="如：有社保，有一份平安意外险">
-        </div>
-        <div class="form-group full">
-          <label>补充备注（接触中了解到的信息）</label>
-          <textarea id="notes" placeholder="如：朋友圈常发旅行照，有养猫，最近在装修新房..."></textarea>
-          <div class="tags-row">
-            <span class="tag" onclick="addNote('喜欢旅行')">旅行达人</span>
-            <span class="tag" onclick="addNote('有房贷压力')">有房贷</span>
-            <span class="tag" onclick="addNote('有养宠物')">养宠物</span>
-            <span class="tag" onclick="addNote('经常发朋友圈')">活跃社交</span>
-            <span class="tag" onclick="addNote('性格谨慎')">谨慎型</span>
-            <span class="tag" onclick="addNote('决策爽快')">爽快型</span>
-            <span class="tag" onclick="addNote('注重性价比')">价格敏感</span>
-          </div>
-        </div>
-
-      </div>
-      <button class="btn-analyze" id="analyzeBtn" onclick="analyze()">✦ 开始分析客户画像</button>
-    </div>
-
-    <div class="card">
-      <div class="card-title">🕐 历史记录</div>
-      <div class="history-list" id="historyList">
-        <div style="font-size:12px;color:var(--text-muted);text-align:center;padding:8px;">暂无记录</div>
-      </div>
+<!-- ══ CLEAR MODAL ══ -->
+<div id="clrModal">
+  <div class="mbox">
+    <div class="mico">🛡️</div>
+    <div class="mtit">隐私保护提醒</div>
+    <div class="mdesc">当前客户分析已完成。<br>录入下一位客户前，请先清空当前信息<br>以保护客户隐私安全。</div>
+    <div class="mbtns">
+      <button class="mc" onclick="confirmClear()">✓ 清空，录入下一位</button>
+      <button class="mk" onclick="closeClear()">继续查看当前结果</button>
     </div>
   </div>
+</div>
 
-  <!-- RIGHT -->
-  <div class="result-panel" id="resultPanel">
-    <div class="empty-state" id="emptyState">
-      <div class="icon">🔍</div>
-      <p>填写左侧客户信息<br>点击「开始分析」生成AI客户画像<br><br>
-      <span style="font-size:11px;color:var(--text-muted)">信息越完整，分析越精准</span></p>
+<!-- ══ CHANGE PASSWORD MODAL ══ -->
+<div id="pwdModal">
+  <div class="mbox">
+    <div class="mico">🔑</div>
+    <div class="mtit">修改密码</div>
+    <div class="fl"><label>当前密码</label><input class="fi" type="password" id="po"></div>
+    <div class="fl"><label>新密码（至少6位）</label><input class="fi" type="password" id="pn1"></div>
+    <div class="fl"><label>确认新密码</label><input class="fi" type="password" id="pn2"></div>
+    <div class="err" id="pwdErr"></div>
+    <div class="mbtns" style="margin-top:16px">
+      <button class="mc" style="background:var(--accent)" onclick="doChangePwd()">确认修改</button>
+      <button class="mk" onclick="document.getElementById('pwdModal').classList.remove('on')">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN HEADER ══ -->
+<header id="mainHdr" style="display:none">
+  <div class="logo">🎯</div>
+  <h1>客户画像分析系统</h1>
+  <div class="hdr-r">
+    <div class="ubadge">
+      <div class="udot" id="uDot"></div>
+      <span id="uLabel">—</span>
+    </div>
+    <button class="xbtn" onclick="document.getElementById('pwdModal').classList.add('on')">改密码</button>
+    <button class="xbtn" onclick="doLogout()">退出</button>
+  </div>
+</header>
+
+<!-- ══ MODE SWITCHER (admin only) ══ -->
+<div id="modeBar">
+  <span class="mtab on" id="mt1" onclick="switchMode('analysis')">🎯 客户画像分析</span>
+  <span class="mtab" id="mt2" onclick="switchMode('admin')">⚙️ 管理后台</span>
+</div>
+
+<!-- ══ ADMIN BANNER ══ -->
+<div id="admBanner">⭐ 管理员模式 — 可查看和管理所有销售员的数据</div>
+
+<!-- ══ ADMIN VIEW ══ -->
+<div id="admView">
+  <div class="atabs">
+    <div class="atab on" onclick="switchAdmTab('overview',this)">📊 总览</div>
+    <div class="atab" onclick="switchAdmTab('records',this)">📋 客户记录</div>
+    <div class="atab" onclick="switchAdmTab('accounts',this)">👥 账号管理</div>
+  </div>
+  <div class="abody" id="admBody"></div>
+</div>
+
+<!-- ══ APP VIEW ══ -->
+<div id="appView">
+  <div class="wrap">
+    <!-- LEFT: form -->
+    <div>
+      <div class="card">
+        <div class="ctitle">📋 客户信息录入</div>
+        <div class="fgrid">
+          <div class="avrow">
+            <div class="avp" id="avP" onclick="document.getElementById('avF').click()">👤</div>
+            <div class="avinfo">
+              <p>上传微信头像<br>AI自动解读头像信息</p>
+              <button class="upbtn" onclick="document.getElementById('avF').click()">选择图片</button>
+            </div>
+            <input type="file" id="avF" accept="image/*" onchange="handleAv(this)">
+          </div>
+          <div class="fg"><label>姓名 *</label><input type="text" id="fn" autocomplete="off"></div>
+          <div class="fg"><label>微信昵称</label><input type="text" id="fwx" autocomplete="off"></div>
+          <div class="fg"><label>性别</label>
+            <select id="fg2"><option value="">未知</option><option>女</option><option>男</option></select></div>
+          <div class="fg"><label>出生年月日</label><input type="date" id="fbd"></div>
+          <div class="fg"><label>婚姻状况</label>
+            <select id="fmr"><option value="">未知</option><option>未婚</option><option>已婚</option><option>离异</option></select></div>
+          <div class="fg"><label>电话号码</label><input type="text" id="fph" autocomplete="off"></div>
+          <div class="fg"><label>所在城市</label><input type="text" id="fct" autocomplete="off"></div>
+          <div class="fg full"><label>工作单位 / 职业</label><input type="text" id="fjb" autocomplete="off"></div>
+          <div class="fg full"><label>子女情况</label><input type="text" id="fkd" autocomplete="off"></div>
+          <div class="fg full"><label>名单来源</label>
+            <select id="fsr">
+              <option value="">请选择</option>
+              <option>体检名单</option><option>车友群</option><option>宝妈群</option>
+              <option>企业主社群</option><option>转介绍</option><option>陌生拜访</option>
+              <option>线上获客</option><option>其他</option>
+            </select></div>
+          <div class="fg full"><label>已有保险</label><input type="text" id="fin" autocomplete="off"></div>
+          <div class="fg full">
+            <label>补充备注（接触中了解到的信息）</label>
+            <textarea id="fnt" autocomplete="off"></textarea>
+            <div class="trow">
+              <span class="tag" onclick="addNote('喜欢旅行')">旅行达人</span>
+              <span class="tag" onclick="addNote('有房贷压力')">有房贷</span>
+              <span class="tag" onclick="addNote('有养宠物')">养宠物</span>
+              <span class="tag" onclick="addNote('经常发朋友圈')">活跃社交</span>
+              <span class="tag" onclick="addNote('性格谨慎')">谨慎型</span>
+              <span class="tag" onclick="addNote('决策爽快')">爽快型</span>
+              <span class="tag" onclick="addNote('注重性价比')">价格敏感</span>
+            </div>
+          </div>
+        </div>
+        <button class="abtn" id="aBtn" onclick="analyze()">✦ 开始分析客户画像</button>
+      </div>
+      <div class="card">
+        <div class="ctitle">🕐 我的历史记录</div>
+        <div class="hl" id="histL">
+          <div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">暂无记录</div>
+        </div>
+      </div>
+    </div>
+    <!-- RIGHT: result -->
+    <div class="rp" id="rP">
+      <div class="empty" id="emSt">
+        <div class="ico">🔍</div>
+        <p>填写左侧客户信息<br>点击「开始分析」生成AI客户画像<br><br>
+        <span style="font-size:11px;color:var(--muted)">信息越完整，分析越精准</span></p>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-let avatarBase64 = null;
-let clientHistory = JSON.parse(localStorage.getItem('ch_v2') || '[]');
+// ══════════════════════════════════════
+// CONSTANTS & STORAGE
+// ══════════════════════════════════════
+const ADMIN_ID = 'Admin962026H001';
+const K_ACCS   = 'sys_accs_v2';
+const K_RECS   = uid => 'recs2_' + uid;
 
-function handleAvatar(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    avatarBase64 = e.target.result;
-    document.getElementById('avatarPreview').innerHTML = `<img src="${avatarBase64}">`;
-  };
-  reader.readAsDataURL(file);
+function loadAccs(){ try{ return JSON.parse(localStorage.getItem(K_ACCS)||'[]'); }catch{ return []; } }
+function saveAccs(a){ localStorage.setItem(K_ACCS, JSON.stringify(a)); }
+function findAcc(uid){ return loadAccs().find(a=>a.uid===uid); }
+function loadRecs(uid){ try{ return JSON.parse(localStorage.getItem(K_RECS(uid))||'[]'); }catch{ return []; } }
+function saveRecs(uid,r){ localStorage.setItem(K_RECS(uid), JSON.stringify(r)); }
+function allRecs(filterUid){
+  return loadAccs().filter(a=>a.role==='user').flatMap(a=>
+    loadRecs(a.uid).map(r=>({...r,_uid:a.uid,_owner:a.name}))
+  ).filter(r=>!filterUid||r._uid===filterUid)
+   .sort((a,b)=>new Date(b.time)-new Date(a.time));
 }
 
-function addNote(text) {
-  const n = document.getElementById('notes');
-  n.value = n.value ? n.value + '，' + text : text;
+// simple hash
+function hp(p){ let h=0; for(let i=0;i<p.length;i++){h=((h<<5)-h)+p.charCodeAt(i);h|=0;} return 'h_'+Math.abs(h).toString(36)+'_'+p.length; }
+function cp(plain,hash){ return hp(plain)===hash; }
+
+// random password
+function genPwd(){ const c='ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'; let s=''; for(let i=0;i<8;i++) s+=c[Math.floor(Math.random()*c.length)]; return s; }
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+(function(){
+  // Always start with completely blank form
+  clearForm();
+  if(!findAcc(ADMIN_ID)){
+    document.getElementById('setupScr').classList.add('on');
+  } else {
+    document.getElementById('loginScr').classList.add('on');
+  }
+})();
+
+// ══════════════════════════════════════
+// SCREEN NAVIGATION
+// ══════════════════════════════════════
+function showLogin(){
+  document.getElementById('regScr').classList.remove('on');
+  document.getElementById('loginScr').classList.add('on');
+  document.getElementById('loginErr').textContent='';
+}
+function showReg(){
+  document.getElementById('loginScr').classList.remove('on');
+  document.getElementById('regScr').classList.add('on');
+  document.getElementById('regErr').textContent='';
+  document.getElementById('regSuc').textContent='';
+  document.getElementById('rn').value='';
+  document.getElementById('re').value='';
 }
 
-function getAge(birthday) {
-  if (!birthday) return null;
-  const b = new Date(birthday), t = new Date();
-  let age = t.getFullYear() - b.getFullYear();
-  if (t.getMonth() < b.getMonth() || (t.getMonth() === b.getMonth() && t.getDate() < b.getDate())) age--;
-  return age;
+// ══════════════════════════════════════
+// FIRST-TIME SETUP
+// ══════════════════════════════════════
+function doSetup(){
+  const p1=document.getElementById('sp1').value;
+  const p2=document.getElementById('sp2').value;
+  const err=document.getElementById('setupErr');
+  if(p1.length<6){err.textContent='密码至少6位';return;}
+  if(p1!==p2){err.textContent='两次密码不一致';return;}
+  saveAccs([{uid:ADMIN_ID,name:'管理员',role:'admin',email:'',pass:hp(p1),created:new Date().toLocaleString('zh-CN'),active:true}]);
+  document.getElementById('setupScr').classList.remove('on');
+  document.getElementById('loginScr').classList.add('on');
+  document.getElementById('lu').value=ADMIN_ID;
 }
 
-function getCarrier(phone) {
-  const p = phone.replace(/\D/g,'').substring(0,3);
-  const m = {'130':'联通','131':'联通','132':'联通','155':'联通','156':'联通','185':'联通','186':'联通','133':'电信','153':'电信','177':'电信','180':'电信','181':'电信','189':'电信','199':'电信','134':'移动','135':'移动','136':'移动','137':'移动','138':'移动','139':'移动','147':'移动','150':'移动','151':'移动','152':'移动','157':'移动','158':'移动','159':'移动','172':'移动','178':'移动','182':'移动','183':'移动','184':'移动','187':'移动','188':'移动','198':'移动','170':'虚拟号','171':'虚拟号'};
-  return m[p] || '';
-}
+// ══════════════════════════════════════
+// REGISTER (sales staff)
+// ══════════════════════════════════════
+async function doRegister(){
+  const name=document.getElementById('rn').value.trim();
+  const email=document.getElementById('re').value.trim().toLowerCase();
+  const errEl=document.getElementById('regErr');
+  const sucEl=document.getElementById('regSuc');
+  const btn=document.getElementById('regBtn');
+  errEl.textContent=''; sucEl.textContent='';
 
-function buildPrompt(info) {
-  let t = `请分析以下保险潜在客户信息，返回JSON格式客户画像：\n\n`;
-  if (info.name) t += `姓名：${info.name}\n`;
-  if (info.wechatName) t += `微信昵称：${info.wechatName}（请重点分析昵称风格、用字含义、性格暗示，以及与真实姓名的差异）\n`;
-  if (info.gender) t += `性别：${info.gender}\n`;
-  if (info.age) t += `年龄：${info.age}岁（${info.birthday}）\n`;
-  if (info.married) t += `婚姻：${info.married}\n`;
-  if (info.phone) t += `电话：${info.phone}（${info.carrier}）\n`;
-  if (info.city) t += `城市：${info.city}\n`;
-  if (info.job) t += `职业：${info.job}\n`;
-  if (info.children) t += `子女：${info.children}\n`;
-  if (info.source) t += `来源：${info.source}\n`;
-  if (info.existing) t += `已有保险：${info.existing}\n`;
-  if (info.notes) t += `补充：${info.notes}\n`;
-  if (avatarBase64) t += `微信头像：已提供图片，请详细分析头像风格、人物气质及性格暗示。\n`;
+  if(!name){errEl.textContent='请填写姓名';return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){errEl.textContent='请填写有效的邮箱地址';return;}
 
-  t += `\n请返回如下JSON（纯JSON，无markdown，无多余文字）：
-{
-  "summary": "一句话客户总结（20字内）",
-  "tags": ["标签1","标签2","标签3","标签4"],
-  "personality": "性格特质分析，100-150字，含沟通风格和决策方式",
-  "wechat_name_analysis": "微信昵称深度解读，60字，分析昵称选择背后的性格、边界感、自我认知",
-  "avatar_analysis": "微信头像分析，50字",
-  "demands": [
-    {"name":"重疾险","score":90,"reason":"原因"},
-    {"name":"医疗险","score":85,"reason":"原因"},
-    {"name":"寿险","score":60,"reason":"原因"},
-    {"name":"年金险","score":70,"reason":"原因"},
-    {"name":"意外险","score":75,"reason":"原因"}
-  ],
-  "do_list": ["应该做的1","应该做的2","应该做的3"],
-  "dont_list": ["不该做的1","不该做的2"],
-  "opening": "建议首次接触开场白，60字内，自然不推销感",
-  "scores": {"purchase_power":85,"demand_urgency":75,"contact_difficulty":60},
-  "best_time": "最佳联系时机建议"
-}`;
-  return t;
-}
-
-async function analyze() {
-  const name = document.getElementById('name').value.trim();
-  if (!name) { alert('请至少填写客户姓名'); return; }
-
-  const btn = document.getElementById('analyzeBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="loading-spin"></span>正在分析...';
-
-  const age = getAge(document.getElementById('birthday').value);
-  const phone = document.getElementById('phone').value;
-  const info = {
-    name, wechatName: document.getElementById('wechatName').value,
-    gender: document.getElementById('gender').value,
-    birthday: document.getElementById('birthday').value,
-    age, phone, carrier: getCarrier(phone),
-    city: document.getElementById('city').value,
-    job: document.getElementById('job').value,
-    married: document.getElementById('married').value,
-    children: document.getElementById('children').value,
-    source: document.getElementById('source').value,
-    existing: document.getElementById('existing').value,
-    notes: document.getElementById('notes').value,
-  };
-
-  document.getElementById('emptyState')?.remove();
-  document.getElementById('resultPanel').innerHTML = `
-    <div class="card" style="text-align:center;padding:40px;color:var(--text-muted)">
-      <div style="font-size:36px;margin-bottom:14px">⚡</div>
-      <p>正在为 <strong style="color:var(--accent2)">${name}</strong> 生成画像...</p>
-      <p style="font-size:12px;margin-top:8px">AI综合分析中，请稍候</p>
-    </div>`;
-
-  try {
-    const content = avatarBase64
-      ? [
-          { type:'image', source:{ type:'base64', media_type:'image/jpeg', data: avatarBase64.split(',')[1] } },
-          { type:'text', text: buildPrompt(info) }
-        ]
-      : buildPrompt(info);
-
-    const resp = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        system: '你是资深保险销售顾问助手，专门分析潜在客户画像。请只返回纯JSON，不要任何markdown标记或额外文字。',
-        messages: [{ role:'user', content }]
-      })
-    });
-
-    const data = await resp.json();
-    const raw = data.content?.find(b => b.type==='text')?.text || '';
-    let result;
-    try { result = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
-    catch { result = fallback(info); }
-
-    renderResult(result, info);
-
-    clientHistory.unshift({ name, time: new Date().toLocaleString('zh-CN'), info, result, avatar: avatarBase64 });
-    if (clientHistory.length > 10) clientHistory.pop();
-    localStorage.setItem('ch_v2', JSON.stringify(clientHistory));
-    renderHistory();
-
-  } catch(e) {
-    document.getElementById('resultPanel').innerHTML = `
-      <div class="card" style="color:#fca5a5;padding:24px">
-        <p>⚠️ 分析失败：${e.message}</p>
-        <p style="font-size:12px;margin-top:8px;color:var(--text-muted)">请检查网络连接后重试</p>
-      </div>`;
+  const accs=loadAccs();
+  // check if email already registered
+  if(accs.find(a=>a.uid===email)){
+    errEl.textContent='该邮箱已注册，请直接登录';return;
+  }
+  // check pending
+  if(accs.find(a=>a.email===email&&a.status==='pending')){
+    errEl.textContent='该邮箱已提交申请，请等待管理员审核';return;
   }
 
-  btn.disabled = false;
-  btn.innerHTML = '✦ 重新分析';
-}
+  btn.disabled=true;
+  btn.innerHTML='<span class="spin"></span>发送中...';
 
-function fallback(info) {
-  return {
-    summary: `${info.name} · ${info.age ? info.age+'岁' : ''} · ${info.job||''}`,
-    tags: [info.gender||'客户', info.married||'', info.source||'', '待深入了解'].filter(Boolean),
-    personality: '根据现有信息，该客户情况需进一步了解，建议以专业姿态初次接触，建立信任后再深入分析。',
-    avatar_analysis: avatarBase64 ? '已上传头像，请重试以获取AI解读' : '暂无头像信息',
-    demands: [
-      {name:'重疾险',score:80,reason:'核心保障需求'},
-      {name:'医疗险',score:85,reason:'基础刚需'},
-      {name:'寿险',score:60,reason:'视家庭情况'},
-      {name:'年金险',score:65,reason:'长期规划'},
-      {name:'意外险',score:75,reason:'基础配置'}
-    ],
-    do_list:['专业对等沟通','从需求出发而非产品','给足思考空间'],
-    dont_list:['急于成交','夸大产品收益'],
-    opening:`您好，我是XX，通过${info.source||'渠道'}认识您，专注家庭保障规划，方便聊几分钟吗？`,
-    scores:{purchase_power:75, demand_urgency:70, contact_difficulty:65},
-    best_time:'工作日上午10点或下午3-5点'
-  };
-}
+  const pwd=genPwd();
 
-function scoreColor(s) { return s>=80?'#10b981':s>=60?'#f59e0b':'#ef4444'; }
-
-function renderResult(r, info) {
-  const avatarHtml = avatarBase64
-    ? `<img src="${avatarBase64}">`
-    : `<span>${info.gender==='女'?'👩':info.gender==='男'?'👨':'👤'}</span>`;
-
-  const tagsHtml = (r.tags||[]).map((t,i)=>`<span class="client-tag ${i===0?'gold':''}">${t}</span>`).join('');
-
-  const demandsHtml = (r.demands||[]).map(d=>`
-    <div class="demand-item">
-      <div class="demand-name">${d.name}</div>
-      <div class="demand-bar-wrap"><div class="demand-bar" style="width:0%" data-w="${d.score}%"></div></div>
-      <div class="demand-score">${d.score}</div>
-    </div>
-    ${d.reason?`<div class="demand-reason">${d.reason}</div>`:''}
-  `).join('');
-
-  const doHtml = (r.do_list||[]).map(t=>`<div class="tip-item do"><span class="tip-icon">✅</span><span>${t}</span></div>`).join('');
-  const dontHtml = (r.dont_list||[]).map(t=>`<div class="tip-item dont"><span class="tip-icon">❌</span><span>${t}</span></div>`).join('');
-
-  const sc = r.scores||{};
-
-  document.getElementById('resultPanel').innerHTML = `
-    <div class="client-header">
-      <div class="client-avatar">${avatarHtml}</div>
-      <div class="client-meta">
-        <h2>${info.name} <span style="font-size:13px;font-weight:400;color:var(--text-muted)">${info.age?info.age+'岁':''}</span></h2>
-        <div class="client-tags">${tagsHtml}</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:7px">📌 ${r.summary||''}</div>
-      </div>
-    </div>
-
-    <div class="score-row">
-      <div class="score-item">
-        <div class="score-num" style="color:${scoreColor(sc.purchase_power||75)}">${sc.purchase_power||75}</div>
-        <div class="score-label">购买力指数</div>
-      </div>
-      <div class="score-item">
-        <div class="score-num" style="color:${scoreColor(sc.demand_urgency||70)}">${sc.demand_urgency||70}</div>
-        <div class="score-label">需求紧迫度</div>
-      </div>
-      <div class="score-item">
-        <div class="score-num" style="color:${scoreColor(100-(sc.contact_difficulty||60))}">${sc.contact_difficulty||60}</div>
-        <div class="score-label">沟通难度</div>
-      </div>
-    </div>
-
-    <div class="analysis-section">
-      <div class="section-header">🧠 性格特质分析</div>
-      <div class="section-body">${r.personality||''}</div>
-    </div>
-
-    ${r.wechat_name_analysis ? `
-    <div class="analysis-section">
-      <div class="section-header">💬 微信昵称解读</div>
-      <div class="section-body">${r.wechat_name_analysis||''}</div>
-    </div>` : ''}
-
-    <div class="analysis-section">
-      <div class="section-header">🖼️ 微信头像解读</div>
-      <div class="section-body">${r.avatar_analysis||''}</div>
-    </div>
-
-    <div class="analysis-section">
-      <div class="section-header">📊 保险需求优先级</div>
-      <div class="demand-grid">${demandsHtml}</div>
-    </div>
-
-    <div class="analysis-section">
-      <div class="section-header">💬 沟通策略</div>
-      <div class="tips-list">${doHtml}<div class="divider"></div>${dontHtml}</div>
-    </div>
-
-    <div class="analysis-section">
-      <div class="section-header">🎯 首次接触开场白</div>
-      <div class="opening-box">"${r.opening||''}"</div>
-    </div>
-
-    <div class="analysis-section">
-      <div class="section-header">⏰ 最佳联系时机</div>
-      <div class="section-body">${r.best_time||''}</div>
-    </div>
-  `;
-
-  setTimeout(()=>{
-    document.querySelectorAll('.demand-bar').forEach(b=>{
-      b.style.width = b.dataset.w;
+  try{
+    // send email via Resend API
+    const resp=await fetch('/api/email',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({to:email,name,password:pwd,type:'welcome'})
     });
-  }, 100);
+    const data=await resp.json();
+    if(!resp.ok) throw new Error(data.error||'邮件发送失败');
+
+    // save account (password stored as hash, email = uid)
+    accs.push({
+      uid:email, name, role:'user', email,
+      pass:hp(pwd), created:new Date().toLocaleString('zh-CN'),
+      active:true, status:'active'
+    });
+    saveAccs(accs);
+
+    sucEl.textContent='✅ 注册成功！密码已发送至您的邮箱，请查收后登录';
+    btn.innerHTML='注册成功';
+    setTimeout(()=>showLogin(),3000);
+
+  }catch(e){
+    // If email fails (e.g. no RESEND_API_KEY in dev), still create account and show password
+    // In production this will work properly
+    accs.push({
+      uid:email, name, role:'user', email,
+      pass:hp(pwd), created:new Date().toLocaleString('zh-CN'),
+      active:true, status:'active'
+    });
+    saveAccs(accs);
+
+    errEl.textContent='';
+    sucEl.innerHTML=`✅ 账号已创建！<br>邮件发送失败（${e.message}），请记录您的初始密码：<br><strong style="font-size:16px;letter-spacing:2px;color:var(--gold)">${pwd}</strong><br>登录后请立即修改密码`;
+    btn.innerHTML='已创建';
+    btn.disabled=false;
+  }
 }
 
-function renderHistory() {
-  const list = document.getElementById('historyList');
-  if (!clientHistory.length) {
-    list.innerHTML = '<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:8px;">暂无记录</div>';
-    return;
+// ══════════════════════════════════════
+// LOGIN / LOGOUT
+// ══════════════════════════════════════
+let CU=null, avB64=null, analyzed=false;
+
+function doLogin(){
+  const uid=document.getElementById('lu').value.trim();
+  const pwd=document.getElementById('lp').value;
+  const err=document.getElementById('loginErr');
+  const acc=findAcc(uid);
+  if(!acc){err.textContent='账号不存在';return;}
+  if(!acc.active){err.textContent='账号已被禁用，请联系管理员';return;}
+  if(!cp(pwd,acc.pass)){err.textContent='密码错误，请重试';document.getElementById('lp').value='';return;}
+
+  CU=acc; err.textContent='';
+  document.getElementById('loginScr').classList.remove('on');
+  document.getElementById('mainHdr').style.display='flex';
+  document.getElementById('uDot').className='udot'+(acc.role==='admin'?' adm':'');
+  document.getElementById('uLabel').textContent=acc.role==='admin'?'⭐ '+acc.name:acc.name;
+
+  // IMPORTANT: clear form completely before showing app
+  clearForm();
+  avB64=null;
+  analyzed=false;
+  document.getElementById('avP').innerHTML='👤';
+  document.getElementById('rP').innerHTML=`
+    <div class="empty" id="emSt"><div class="ico">🔍</div>
+    <p>填写左侧客户信息<br>点击「开始分析」生成AI客户画像<br><br>
+    <span style="font-size:11px;color:var(--muted)">信息越完整，分析越精准</span></p></div>`;
+
+  if(acc.role==='admin'){
+    document.getElementById('modeBar').style.display='block';
+    document.getElementById('appView').style.display='block';
+    document.getElementById('admView').style.display='none';
+    renderHist();
+  } else {
+    document.getElementById('appView').style.display='block';
+    renderHist();
   }
-  list.innerHTML = clientHistory.slice(0,5).map((h,i)=>`
-    <div class="history-item" onclick="loadHistory(${i})">
+}
+
+function doLogout(){
+  CU=null; avB64=null; analyzed=false;
+  ['mainHdr','modeBar','admBanner','admView','appView'].forEach(id=>{
+    document.getElementById(id).style.display='none';
+  });
+  document.getElementById('mt1').classList.add('on');
+  document.getElementById('mt2').classList.remove('on');
+  document.getElementById('lu').value='';
+  document.getElementById('lp').value='';
+  document.getElementById('loginErr').textContent='';
+  // Security: clear all form fields on logout
+  clearForm();
+  document.getElementById('avP').innerHTML='👤';
+  document.getElementById('loginScr').classList.add('on');
+}
+
+// ══════════════════════════════════════
+// MODE SWITCHER
+// ══════════════════════════════════════
+function switchMode(mode){
+  document.getElementById('mt1').classList.toggle('on',mode==='analysis');
+  document.getElementById('mt2').classList.toggle('on',mode==='admin');
+  if(mode==='analysis'){
+    document.getElementById('appView').style.display='block';
+    document.getElementById('admView').style.display='none';
+    document.getElementById('admBanner').style.display='none';
+  } else {
+    document.getElementById('appView').style.display='none';
+    document.getElementById('admView').style.display='block';
+    document.getElementById('admBanner').style.display='flex';
+    renderOverview();
+  }
+}
+
+// ══════════════════════════════════════
+// CHANGE PASSWORD
+// ══════════════════════════════════════
+function doChangePwd(){
+  const old=document.getElementById('po').value;
+  const n1=document.getElementById('pn1').value;
+  const n2=document.getElementById('pn2').value;
+  const err=document.getElementById('pwdErr');
+  if(!cp(old,CU.pass)){err.textContent='当前密码错误';return;}
+  if(n1.length<6){err.textContent='新密码至少6位';return;}
+  if(n1!==n2){err.textContent='两次新密码不一致';return;}
+  const accs=loadAccs();
+  const idx=accs.findIndex(a=>a.uid===CU.uid);
+  accs[idx].pass=hp(n1); saveAccs(accs); CU=accs[idx];
+  document.getElementById('pwdModal').classList.remove('on');
+  ['po','pn1','pn2'].forEach(id=>document.getElementById(id).value='');
+  err.textContent='';
+  alert('密码修改成功！');
+}
+
+// ══════════════════════════════════════
+// ADMIN PANEL
+// ══════════════════════════════════════
+let admTab='overview';
+function switchAdmTab(tab,el){
+  admTab=tab;
+  document.querySelectorAll('.atab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  if(tab==='overview') renderOverview();
+  else if(tab==='records') renderAdmRecs();
+  else renderAccounts();
+}
+
+function renderOverview(){
+  const accs=loadAccs().filter(a=>a.role==='user');
+  const ar=allRecs();
+  const today=new Date().toDateString();
+  const todayN=ar.filter(r=>new Date(r.time).toDateString()===today).length;
+  document.getElementById('admBody').innerHTML=`
+    <div class="sgrid">
+      <div class="sc2"><div class="sn">${accs.length}</div><div class="sl">销售员账号</div></div>
+      <div class="sc2"><div class="sn">${ar.length}</div><div class="sl">总客户记录</div></div>
+      <div class="sc2"><div class="sn">${todayN}</div><div class="sl">今日新增</div></div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px;letter-spacing:1px">销售员概览（点击查看详情）</div>
+    ${accs.length===0
+      ?`<div style="font-size:13px;color:var(--muted);padding:20px;text-align:center">暂无销售员，等待注册审核中</div>`
+      :accs.map(a=>{
+        const rc=loadRecs(a.uid);
+        return `<div class="ucard" onclick="showUserRecs('${a.uid}')">
+          <div style="font-size:20px">👤</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:500">${a.name} <span style="font-size:11px;color:var(--muted)">${a.email||a.uid}</span></div>
+            <div style="font-size:11px;color:var(--muted)">客户记录 ${rc.length} 条 &nbsp;·&nbsp; ${rc.length?'最近：'+rc[0].time:'暂无'}</div>
+          </div>
+          <span class="sdot ${a.active?'dg':'dr2'}"></span>
+          <span style="font-size:11px;color:var(--muted)">${a.active?'正常':'已禁用'}</span>
+        </div>`;
+      }).join('')
+    }`;
+}
+
+function renderAdmRecs(filterUid){
+  const recs=allRecs(filterUid);
+  const owner=filterUid?findAcc(filterUid)?.name:null;
+  document.getElementById('admBody').innerHTML=`
+    ${owner?`<button onclick="renderOverview()" style="font-size:12px;color:var(--a2);background:none;border:none;cursor:pointer;margin-bottom:14px;font-family:inherit">← 返回总览</button>
+    <div style="margin-bottom:12px;font-size:13px;color:var(--soft)">${owner} 的客户记录（共 ${recs.length} 条）</div>`:''}
+    <div style="overflow-x:auto">
+    <table class="rt">
+      <thead><tr><th>客户姓名</th><th>性别/年龄</th><th>职业</th><th>来源</th><th>销售员</th><th>录入时间</th></tr></thead>
+      <tbody>${recs.length===0
+        ?`<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">暂无记录</td></tr>`
+        :recs.map(r=>`<tr>
+          <td><strong>${r.name}</strong></td>
+          <td>${r.info.gender||'—'} ${r.info.age?r.info.age+'岁':''}</td>
+          <td style="font-size:11px">${r.info.job||'—'}</td>
+          <td style="font-size:11px">${r.info.source||'—'}</td>
+          <td><span class="utag">${r._owner}</span></td>
+          <td style="font-size:11px">${r.time}</td>
+        </tr>`).join('')
+      }</tbody>
+    </table></div>`;
+}
+
+function showUserRecs(uid){
+  document.querySelectorAll('.atab').forEach((t,i)=>t.classList.toggle('on',i===1));
+  admTab='records';
+  renderAdmRecs(uid);
+}
+
+function renderAccounts(){
+  const accs=loadAccs();
+  document.getElementById('admBody').innerHTML=`
+    <div class="cpanel">
+      <h3>➕ 手动创建销售员账号</h3>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px">填写信息后，系统自动发送密码邮件至销售员邮箱。管理员不会看到密码。</p>
+      <div class="cgrid">
+        <div class="fl" style="margin:0"><label>姓名</label><input class="fi" type="text" id="cn" placeholder="销售员姓名"></div>
+        <div class="fl" style="margin:0"><label>邮箱</label><input class="fi" type="email" id="ce" placeholder="销售员邮箱"></div>
+      </div>
+      <button class="cbtn" style="margin-top:12px" onclick="adminCreateAcc()">创建并发送密码邮件</button>
+      <div class="err" id="cErr" style="text-align:left;margin-top:8px"></div>
+      <div class="suc" id="cSuc" style="text-align:left;margin-top:8px"></div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px;letter-spacing:1px">所有账号（管理员不可见密码）</div>
+    <table class="rt">
+      <thead><tr><th>账号（邮箱/工号）</th><th>姓名</th><th>角色</th><th>注册时间</th><th>状态</th><th>操作</th></tr></thead>
+      <tbody>${accs.map(a=>`<tr>
+        <td style="font-size:11px;font-family:monospace">${a.uid}</td>
+        <td>${a.name}</td>
+        <td><span class="utag ${a.role==='admin'?'adm':''}">${a.role==='admin'?'管理员':'销售员'}</span></td>
+        <td style="font-size:11px">${a.created}</td>
+        <td><span class="sdot ${a.active?'dg':'dr2'}"></span>${a.active?'正常':'已禁用'}</td>
+        <td>${a.role!=='admin'?`
+          <button class="tbtn" style="color:${a.active?'var(--gold)':'var(--green)'};border:1px solid ${a.active?'rgba(245,158,11,.3)':'rgba(16,185,129,.3)'}"
+            onclick="toggleAcc('${a.uid}')">${a.active?'禁用':'启用'}</button>
+          <button class="tbtn" style="color:var(--a2);border:1px solid rgba(59,130,246,.3)"
+            onclick="resetPwd('${a.uid}','${a.name}','${a.email||a.uid}')">重置密码</button>
+          <button class="dbtn" onclick="deleteAcc('${a.uid}')">删除</button>
+        `:'<span style="font-size:11px;color:var(--muted)">—</span>'}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+}
+
+async function adminCreateAcc(){
+  const name=document.getElementById('cn').value.trim();
+  const email=document.getElementById('ce').value.trim().toLowerCase();
+  const err=document.getElementById('cErr');
+  const suc=document.getElementById('cSuc');
+  err.textContent=''; suc.textContent='';
+  if(!name){err.textContent='请填写姓名';return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='请填写有效邮箱';return;}
+  const accs=loadAccs();
+  if(accs.find(a=>a.uid===email)){err.textContent='该邮箱已存在';return;}
+  const pwd=genPwd();
+  try{
+    const resp=await fetch('/api/email',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({to:email,name,password:pwd,type:'welcome'})});
+    const data=await resp.json();
+    if(!resp.ok) throw new Error(data.error);
+    accs.push({uid:email,name,role:'user',email,pass:hp(pwd),created:new Date().toLocaleString('zh-CN'),active:true});
+    saveAccs(accs);
+    document.getElementById('cn').value='';
+    document.getElementById('ce').value='';
+    suc.textContent=`✅ 账号已创建，密码已发送至 ${email}`;
+    renderAccounts();
+  }catch(e){
+    // Email failed but still create account - show password once
+    accs.push({uid:email,name,role:'user',email,pass:hp(pwd),created:new Date().toLocaleString('zh-CN'),active:true});
+    saveAccs(accs);
+    document.getElementById('cn').value='';
+    document.getElementById('ce').value='';
+    err.textContent='';
+    suc.innerHTML=`✅ 账号已创建<br>邮件发送失败（${e.message}）<br>请手动告知初始密码：<strong style="letter-spacing:2px;color:var(--gold)">${pwd}</strong>`;
+    renderAccounts();
+  }
+}
+
+async function resetPwd(uid,name,email){
+  if(!confirm(`确定为 ${name} 重置密码？新密码将发送至 ${email}`)) return;
+  const pwd=genPwd();
+  try{
+    const resp=await fetch('/api/email',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({to:email,name,password:pwd,type:'reset'})});
+    if(!resp.ok) throw new Error('邮件发送失败');
+    const accs=loadAccs();
+    const idx=accs.findIndex(a=>a.uid===uid);
+    accs[idx].pass=hp(pwd); saveAccs(accs);
+    alert(`✅ 密码已重置并发送至 ${email}\n管理员不会看到新密码内容。`);
+    renderAccounts();
+  }catch(e){
+    const accs=loadAccs();
+    const idx=accs.findIndex(a=>a.uid===uid);
+    accs[idx].pass=hp(pwd); saveAccs(accs);
+    alert(`账号已重置，但邮件发送失败（${e.message}）\n新密码：${pwd}\n请手动告知用户并提醒其尽快修改。`);
+    renderAccounts();
+  }
+}
+
+function toggleAcc(uid){
+  const accs=loadAccs();
+  const idx=accs.findIndex(a=>a.uid===uid);
+  if(idx>-1){accs[idx].active=!accs[idx].active;saveAccs(accs);renderAccounts();}
+}
+function deleteAcc(uid){
+  if(!confirm(`确定删除账号 ${uid}？\n该账号所有客户记录将同步删除，不可恢复。`)) return;
+  saveAccs(loadAccs().filter(a=>a.uid!==uid));
+  localStorage.removeItem(K_RECS(uid));
+  renderAccounts();
+}
+
+// ══════════════════════════════════════
+// CLEAR MODAL
+// ══════════════════════════════════════
+function showClear(){ document.getElementById('clrModal').classList.add('on'); }
+function closeClear(){ document.getElementById('clrModal').classList.remove('on'); }
+function confirmClear(){ closeClear(); clearAll(); }
+function clearForm(){
+  // Explicitly clear every field - no placeholder names, no residual data
+  const ids=['fn','fwx','fg2','fbd','fmr','fph','fct','fjb','fkd','fsr','fin','fnt'];
+  ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+}
+function clearAll(){
+  clearForm();
+  avB64=null;
+  document.getElementById('avP').innerHTML='👤';
+  document.getElementById('rP').innerHTML=`
+    <div class="empty"><div class="ico" style="opacity:.6;color:var(--green)">✅</div>
+    <p style="color:var(--green)">已安全清空</p>
+    <p style="color:var(--muted)">请录入下一位客户信息</p></div>`;
+  const btn=document.getElementById('aBtn');
+  btn.innerHTML='✦ 开始分析客户画像';
+  btn.disabled=false;
+  analyzed=false;
+  window.scrollTo(0,0);
+}
+
+// ══════════════════════════════════════
+// AVATAR
+// ══════════════════════════════════════
+function handleAv(input){
+  const f=input.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{ avB64=e.target.result; document.getElementById('avP').innerHTML=`<img src="${avB64}">`; };
+  r.readAsDataURL(f);
+}
+function addNote(t){ const n=document.getElementById('fnt'); n.value=n.value?n.value+'，'+t:t; }
+
+// ══════════════════════════════════════
+// ANALYZE
+// ══════════════════════════════════════
+function getAge(d){ if(!d) return null; const b=new Date(d),t=new Date(); let a=t.getFullYear()-b.getFullYear(); if(t.getMonth()<b.getMonth()||(t.getMonth()===b.getMonth()&&t.getDate()<b.getDate())) a--; return a; }
+function gc(ph){ const p=ph.replace(/\D/g,'').substring(0,3); const m={'130':'联通','131':'联通','132':'联通','133':'电信','153':'电信','189':'电信','199':'电信','134':'移动','135':'移动','136':'移动','137':'移动','138':'移动','139':'移动','147':'移动','150':'移动','157':'移动','158':'移动','182':'移动','183':'移动','187':'移动','188':'移动','198':'移动','170':'虚拟号','171':'虚拟号'}; return m[p]||''; }
+
+async function analyze(){
+  if(analyzed){ showClear(); return; }
+  const name=document.getElementById('fn').value.trim();
+  if(!name){ alert('请至少填写客户姓名'); return; }
+  const btn=document.getElementById('aBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span>正在分析...';
+  const phone=document.getElementById('fph').value;
+  const info={
+    name, wechatName:document.getElementById('fwx').value,
+    gender:document.getElementById('fg2').value,
+    birthday:document.getElementById('fbd').value,
+    age:getAge(document.getElementById('fbd').value),
+    phone, carrier:gc(phone),
+    city:document.getElementById('fct').value,
+    job:document.getElementById('fjb').value,
+    married:document.getElementById('fmr').value,
+    children:document.getElementById('fkd').value,
+    source:document.getElementById('fsr').value,
+    existing:document.getElementById('fin').value,
+    notes:document.getElementById('fnt').value,
+  };
+  document.getElementById('emSt')?.remove();
+  document.getElementById('rP').innerHTML=`
+    <div class="card" style="text-align:center;padding:38px;color:var(--muted)">
+      <div style="font-size:34px;margin-bottom:12px">⚡</div>
+      <p>正在为 <strong style="color:var(--a2)">${name}</strong> 生成画像分析...</p></div>`;
+  try{
+    const content=avB64
+      ?[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:avB64.split(',')[1]}},{type:'text',text:buildP(info)}]
+      :buildP(info);
+    const resp=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({system:'你是资深保险销售顾问助手，专门分析潜在客户画像。请只返回纯JSON，无markdown标记。',messages:[{role:'user',content}]})});
+    const data=await resp.json();
+    const raw=data.content?.find(b=>b.type==='text')?.text||'';
+    let result; try{result=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch{result=fb(info);}
+    renderResult(result,info);
+    const recs=loadRecs(CU.uid);
+    recs.unshift({name,time:new Date().toLocaleString('zh-CN'),info,result,av:avB64});
+    if(recs.length>20) recs.pop();
+    saveRecs(CU.uid,recs); renderHist();
+    analyzed=true;
+    setTimeout(()=>showClear(),1600);
+  }catch(e){
+    document.getElementById('rP').innerHTML=`<div class="card" style="color:#fca5a5;padding:22px"><p>⚠️ 分析失败：${e.message}</p></div>`;
+    btn.disabled=false; btn.innerHTML='✦ 重新分析';
+  }
+}
+
+function buildP(i){
+  let t='请分析以下保险潜在客户信息，返回JSON格式客户画像：\n\n';
+  if(i.name) t+=`姓名：${i.name}\n`;
+  if(i.wechatName) t+=`微信昵称：${i.wechatName}（请分析昵称风格、用字含义、性格暗示）\n`;
+  if(i.gender) t+=`性别：${i.gender}\n`;
+  if(i.age) t+=`年龄：${i.age}岁（${i.birthday}）\n`;
+  if(i.married) t+=`婚姻：${i.married}\n`;
+  if(i.phone) t+=`电话：${i.phone}（${i.carrier}）\n`;
+  if(i.city) t+=`城市：${i.city}\n`;
+  if(i.job) t+=`职业：${i.job}\n`;
+  if(i.children) t+=`子女：${i.children}\n`;
+  if(i.source) t+=`来源：${i.source}\n`;
+  if(i.existing) t+=`已有保险：${i.existing}\n`;
+  if(i.notes) t+=`补充：${i.notes}\n`;
+  if(avB64) t+=`微信头像：已提供图片，请详细分析头像风格和性格暗示。\n`;
+  return t+`\n请返回如下JSON（纯JSON，无markdown）：
+{"summary":"一句话总结20字内","tags":["标签1","标签2","标签3","标签4"],
+"personality":"性格特质100-150字含沟通风格和决策方式",
+"wechat_name_analysis":"微信昵称解读60字",
+"avatar_analysis":"头像分析50字",
+"demands":[{"name":"重疾险","score":90,"reason":"原因"},{"name":"医疗险","score":85,"reason":"原因"},{"name":"寿险","score":60,"reason":"原因"},{"name":"年金险","score":70,"reason":"原因"},{"name":"意外险","score":75,"reason":"原因"}],
+"do_list":["应该做的1","应该做的2","应该做的3"],
+"dont_list":["不该做的1","不该做的2"],
+"opening":"建议开场白60字内自然",
+"scores":{"purchase_power":85,"demand_urgency":75,"contact_difficulty":60},
+"best_time":"最佳联系时机"}`;
+}
+
+function fb(i){ return{summary:`${i.name}·${i.age||''}岁·${i.job||''}`,tags:[i.gender||'客户',i.source||'','待了解',''].filter(Boolean),personality:'根据现有信息，建议以专业姿态初次接触，建立信任后深入分析。',wechat_name_analysis:i.wechatName?`昵称"${i.wechatName}"待分析`:'暂无',avatar_analysis:'暂无头像信息',demands:[{name:'重疾险',score:80,reason:'核心保障'},{name:'医疗险',score:85,reason:'刚需'},{name:'寿险',score:60,reason:'视情况'},{name:'年金险',score:65,reason:'规划'},{name:'意外险',score:75,reason:'基础'}],do_list:['专业沟通','需求导向','给足时间'],dont_list:['急于成交','夸大收益'],opening:`您好，我是XX，通过${i.source||'渠道'}认识您，想聊聊家庭保障规划，方便吗？`,scores:{purchase_power:75,demand_urgency:70,contact_difficulty:65},best_time:'工作日上午10点或下午3-5点'}; }
+
+function sc(s){ return s>=80?'#10b981':s>=60?'#f59e0b':'#ef4444'; }
+
+function renderResult(r,i){
+  const avH=avB64?`<img src="${avB64}">`:`<span>${i.gender==='女'?'👩':i.gender==='男'?'👨':'👤'}</span>`;
+  const tH=(r.tags||[]).map((t,idx)=>`<span class="ctag ${idx===0?'g':''}">${t}</span>`).join('');
+  const dH=(r.demands||[]).map(d=>`<div class="di"><div class="dn">${d.name}</div><div class="dbw"><div class="db" style="width:0%" data-w="${d.score}%"></div></div><div class="ds">${d.score}</div></div>${d.reason?`<div class="dr">${d.reason}</div>`:''}`).join('');
+  const doH=(r.do_list||[]).map(t=>`<div class="ti do2"><span>✅</span><span>${t}</span></div>`).join('');
+  const dtH=(r.dont_list||[]).map(t=>`<div class="ti dont"><span>❌</span><span>${t}</span></div>`).join('');
+  const s=r.scores||{};
+  document.getElementById('rP').innerHTML=`
+    <div class="chdr"><div class="cav">${avH}</div><div class="cmeta">
+      <h2>${i.name} <span style="font-size:12px;font-weight:400;color:var(--muted)">${i.age?i.age+'岁':''}</span></h2>
+      <div class="ctags">${tH}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">📌 ${r.summary||''}</div>
+    </div></div>
+    <div class="srow">
+      <div class="si"><div class="snum" style="color:${sc(s.purchase_power||75)}">${s.purchase_power||75}</div><div class="slb">购买力指数</div></div>
+      <div class="si"><div class="snum" style="color:${sc(s.demand_urgency||70)}">${s.demand_urgency||70}</div><div class="slb">需求紧迫度</div></div>
+      <div class="si"><div class="snum" style="color:${sc(100-(s.contact_difficulty||60))}">${s.contact_difficulty||60}</div><div class="slb">沟通难度</div></div>
+    </div>
+    <div class="asec"><div class="ash">🧠 性格特质分析</div><div class="asb">${r.personality||''}</div></div>
+    ${r.wechat_name_analysis?`<div class="asec"><div class="ash">💬 微信昵称解读</div><div class="asb">${r.wechat_name_analysis}</div></div>`:''}
+    <div class="asec"><div class="ash">🖼️ 微信头像解读</div><div class="asb">${r.avatar_analysis||''}</div></div>
+    <div class="asec"><div class="ash">📊 保险需求优先级</div><div class="dg2">${dH}</div></div>
+    <div class="asec"><div class="ash">💡 沟通策略</div><div class="tlist">${doH}<div class="hr"></div>${dtH}</div></div>
+    <div class="asec"><div class="ash">🎯 首次接触开场白</div><div class="opb">"${r.opening||''}"</div></div>
+    <div class="asec"><div class="ash">⏰ 最佳联系时机</div><div class="asb">${r.best_time||''}</div></div>`;
+  setTimeout(()=>{ document.querySelectorAll('.db').forEach(b=>{ b.style.width=b.dataset.w; }); },100);
+}
+
+// ══════════════════════════════════════
+// HISTORY
+// ══════════════════════════════════════
+function renderHist(){
+  if(!CU) return;
+  const recs=loadRecs(CU.uid);
+  const list=document.getElementById('histL');
+  if(!list) return;
+  if(!recs.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">暂无记录</div>';return;}
+  list.innerHTML=recs.slice(0,5).map((h,i)=>`
+    <div class="hi" onclick="loadH(${i})">
       <span>${h.name} · ${h.info.age?h.info.age+'岁':''} · ${h.info.job||h.info.source||''}</span>
-      <span class="history-time">${h.time}</span>
+      <span class="ht">${h.time}</span>
     </div>`).join('');
 }
 
-function loadHistory(i) {
-  const h = clientHistory[i];
-  if (!h) return;
-  const f = h.info;
-  document.getElementById('name').value = f.name||'';
-  document.getElementById('wechatName').value = f.wechatName||'';
-  document.getElementById('gender').value = f.gender||'';
-  document.getElementById('birthday').value = f.birthday||'';
-  document.getElementById('married').value = f.married||'';
-  document.getElementById('phone').value = f.phone||'';
-  document.getElementById('city').value = f.city||'';
-  document.getElementById('job').value = f.job||'';
-  document.getElementById('children').value = f.children||'';
-  document.getElementById('source').value = f.source||'';
-  document.getElementById('existing').value = f.existing||'';
-  document.getElementById('notes').value = f.notes||'';
-  if (h.avatar) {
-    avatarBase64 = h.avatar;
-    document.getElementById('avatarPreview').innerHTML = `<img src="${h.avatar}">`;
-  }
-  if (h.result) renderResult(h.result, f);
+function loadH(i){
+  if(analyzed){ showClear(); return; }
+  const h=loadRecs(CU.uid)[i]; if(!h) return;
+  const f=h.info;
+  document.getElementById('fn').value=f.name||'';
+  document.getElementById('fwx').value=f.wechatName||'';
+  document.getElementById('fg2').value=f.gender||'';
+  document.getElementById('fbd').value=f.birthday||'';
+  document.getElementById('fmr').value=f.married||'';
+  document.getElementById('fph').value=f.phone||'';
+  document.getElementById('fct').value=f.city||'';
+  document.getElementById('fjb').value=f.job||'';
+  document.getElementById('fkd').value=f.children||'';
+  document.getElementById('fsr').value=f.source||'';
+  document.getElementById('fin').value=f.existing||'';
+  document.getElementById('fnt').value=f.notes||'';
+  if(h.av){avB64=h.av;document.getElementById('avP').innerHTML=`<img src="${h.av}">`;}
+  if(h.result) renderResult(h.result,f);
 }
-
-renderHistory();
 </script>
 </body>
 </html>
